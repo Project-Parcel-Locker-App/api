@@ -90,6 +90,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+js
 
 # Gatsby files
 .cache/
@@ -129,8 +130,3 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Compiled Javascript
-js
-
-# Node modules
-node_modules
