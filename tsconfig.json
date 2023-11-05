@@ -3,7 +3,7 @@
     "target": "ESNext",               /* Specify the ECMAScript target version (e.g., ES5, ES6, ESNext) */
     "module": "CommonJS",             /* Specify the module system (e.g., CommonJS, ESNext) */
     "outDir": "./js",               /* Output directory for transpiled JavaScript files */
-    "rootDir": "./",               /* Source code directory */
+    "rootDir": "../",               /* Source code directory */
     "strict": true,                  /* Enable strict type checking */
     "esModuleInterop": true,          /* Allow interoperability between CommonJS and ES modules */
     "resolveJsonModule": true,       /* Allow importing JSON files as modules */
