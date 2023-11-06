@@ -2,24 +2,36 @@
   "name": "api",
   "version": "1.0.0",
   "description": "PulssiPosti API...",
-  "main": "index.js",
+  "main": "app.ts",
   "scripts": {
+    "dev": "tsx watch app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Project-Parcel-Locker-App/api"
+  },
+  "bugs": "https://github.com/Project-Parcel-Locker-App/api/issues",
   "keywords": [],
-  "author": "",
+  "author": "group-10-pulssiposti",
   "license": "ISC",
   "dependencies": {
-    "@types/cors": "^2.8.15",
-    "@types/express": "^4.17.20",
-    "@types/pg": "^8.10.7",
-    "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "tsx": "^3.14.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
     "@types/node": "^20.8.10",
-    "tslib": "^2.6.2"
+    "@types/pg": "^8.10.7",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }
