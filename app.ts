@@ -1,9 +1,13 @@
-import express from 'express';
+import express, { Request, Response, Application } from 'express';
 import userRouter from './routes/userRoutes';
 import parcelRouter from './routes/parcelRoutes';
 import cabinetRouter from './routes/cabinetRoutes';
 
-const app = express();
+const app: Application = express();
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Welcome to Express & TypeScript Server. Only testing');
+});
 
 // Middleware setup, if needed
 // app.use(yourMiddleware);
