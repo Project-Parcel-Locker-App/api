@@ -1,12 +1,18 @@
 import express, { Request, Response, Application } from 'express';
+import cors from 'cors';
 import userRouter from './routes/userRoutes';
 import parcelRouter from './routes/parcelRoutes';
 import cabinetRouter from './routes/cabinetRoutes';
 
 const app: Application = express();
+app.use([
+	cors(),
+	express.json(), // for parsing application/json
+	express.urlencoded({ extended: false }), // for parsing application/x-www-form-urlencoded
+]);
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Express & TypeScript Server. Only testing');
+app.get('/api', (_req: Request, res: Response) => {
+	res.send('Welcome to Express TypeScript Server.');
 });
 
 // Middleware setup, if needed
