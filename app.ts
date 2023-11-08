@@ -24,7 +24,7 @@ app.use('/api/parcels', parcelRouter);
 app.use('/api/cabinets', cabinetRouter);
 
 // Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+const PORT = Number(process.env.PORT || 3000);
+app.listen(PORT, () => {
+	console.log(`Server is running on http://localhost:${PORT}`);
 });
