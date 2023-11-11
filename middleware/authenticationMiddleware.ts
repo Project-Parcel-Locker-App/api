@@ -20,8 +20,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as Secret); // Verify the token
     // Add decoded user information to the request object if needed
     req.user = decoded;
-    return;
-    next();
+    return next();
   } catch (error) {
     return res.status(403).json({ message: 'Forbidden: Invalid access token' });
   }
