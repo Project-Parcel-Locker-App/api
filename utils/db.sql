@@ -60,7 +60,7 @@ CREATE TABLE lockers (
 
 CREATE TABLE cabinets (
   id SERIAL PRIMARY KEY,
-  cabinet_status CHECK (UPPER(cabinet_status) IN ('available', 'reserved', 'in-use', 'out-of-service')),
+  cabinet_status VARCHAR(10) CHECK (UPPER(cabinet_status) IN ('available', 'reserved', 'in-use', 'out-of-service')),
   cabinet_size CHAR(2) CHECK (UPPER(cabinet_size) IN ('S', 'M', 'L', 'XL')),
   parcel_id INT REFERENCES parcels(id) ON DELETE CASCADE ON UPDATE CASCADE,
   locker_id INT NOT NULL REFERENCES lockers(id) ON DELETE SET NULL ON UPDATE CASCADE,
