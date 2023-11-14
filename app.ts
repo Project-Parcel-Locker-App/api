@@ -3,6 +3,7 @@ import cors from 'cors';
 import userRouter from './routes/userRoutes';
 import parcelRouter from './routes/parcelRoutes';
 import cabinetRouter from './routes/cabinetRoutes';
+import { CabinetController } from './controllers/cabinetController';
 
 const app: Application = express();
 app.use([
@@ -22,6 +23,17 @@ app.get('/api', (_req: Request, res: Response) => {
 app.use('/api/users', userRouter);
 app.use('/api/parcels', parcelRouter);
 app.use('/api/cabinets', cabinetRouter);
+
+// cabinetRoutes.ts
+const router = express.Router();
+
+router.put('/updatestatus', CabinetController.updateStatus);
+router.put('/reserve', CabinetController.reserveCabinet);
+
+export default router;
+
+
+
 
 // Start the server
 const PORT = Number(process.env.PORT || 3000);

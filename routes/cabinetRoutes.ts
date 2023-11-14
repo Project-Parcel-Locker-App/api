@@ -1,9 +1,10 @@
+// cabinetRoutes.ts
 import express from 'express';
-import { getCabinetStatus, reserveCabinet } from '../controllers/cabinetController';
+import { CabinetController } from '../controllers/cabinetController';
 
-const cabinetRouter = express.Router();
+const router = express.Router();
 
-cabinetRouter.get('/:cabinetID', getCabinetStatus);
-cabinetRouter.put('/:cabinetID/reserve', reserveCabinet);
+router.put('/updatestatus', CabinetController.updateStatus);
+router.put('/reserve', CabinetController.reserveCabinet);
 
-export default cabinetRouter;
+export default router;
