@@ -1,10 +1,10 @@
 import express from 'express';
-import { sendParcel, getParcelInfo, updateParcelStatus } from '../controllers/parcelController';
+import ParcelController from '../controllers/parcelController'
 
 const parcelRouter = express.Router();
 
-parcelRouter.post('/send', sendParcel);
-parcelRouter.get('/:parcelID', getParcelInfo);
-parcelRouter.put('/:parcelID/update', updateParcelStatus);
+parcelRouter.post('/send', ParcelController.sendParcel);
+parcelRouter.get('/parcels/', ParcelController.getParcelInfo);
+parcelRouter.put('/parcels/update', ParcelController.updateParcelStatus);
 
 export default parcelRouter;
