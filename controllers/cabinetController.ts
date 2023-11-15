@@ -1,36 +1,44 @@
 import { Request, Response } from 'express';
-import { pool } from '../utils/database'; // Import your PostgreSQL pool
+import { pool } from '../utils/database';
+import { QueryResult } from 'pg';
 
-export class CabinetController {
-  static async updateStatus(req: Request, res: Response) {
-    const cabinetId = req.params.cabinetId; // Extract cabinet ID from request
-    const { status } = req.body; // Extract new status from the request body
+const getCabinetById = async (req: Request, res: Response) => {
+	try {
+		const cabinet_id = parseInt(req.params.id);
+		const sql: string = 'SELECT * FROM cabinets WHERE id = $1';
+		const result: QueryResult<Cabinet> = await pool.query(sql, [cabinet_id]);
+		const cabinet: Cabinet = result.rows[0];
+		if (cabinet === undefined) {
+			res.status(404).json({ error: 'Cabinet not found' });
+			return;
+		}
+		res.status(200).json(cabinet);
+	} catch (err: any) {
+		res.status(500).json({ error: err.message });
+	}
+};
 
-    try {
-      const updateQuery = 'UPDATE cabinets SET status = $1 WHERE id = $2 RETURNING *';
-      const updatedCabinet = await pool.query(updateQuery, [status, cabinetId]);
 
-      res.json(updatedCabinet.rows[0]);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
 
-  static async reserveCabinet(req: Request, res: Response) {
-    const cabinetId = req.params.cabinetId; // Extract cabinet ID from request
+const reserveCabinet = async (req: Request, res: Response) => {
+	try {
+		const cabinet_id = parseInt(req.params.id);
+		const { parcel_id } = req.body;
+		const sql: string =
+			"UPDATE cabinets SET cabinet_status = 'reserved', parcel_id = $1 WHERE id = $2 RETURNING *";
+		const result: QueryResult<Cabinet> = await pool.query(sql, [
+			parcel_id,
+			cabinet_id,
+		]);
+		const cabinet: Cabinet = result.rows[0];
+		if (cabinet === undefined) {
+			res.status(404).json({ error: 'Cabinet not found' });
+			return;
+		}
+		res.status(200).json(cabinet);
+	} catch (err: any) {
+		res.status(500).json({ error: err.message });
+	}
+};
 
-    try {
-      const reserveQuery = 'UPDATE cabinets SET reserved = TRUE WHERE id = $1 RETURNING *';
-      const reservedCabinet = await pool.query(reserveQuery, [cabinetId]);
-
-      res.json(reservedCabinet.rows[0]);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
-
-  // Other methods related to cabinet functionalities
-}
-
+export { getCabinetById, reserveCabinet };
