@@ -9,7 +9,7 @@ const getLockerById = async (req: Request, res: Response) => {
 		const result: QueryResult<Cabinet> = await pool.query(sql, [location_id]);
 		const cabinets: Cabinet[] = result.rows;
 		if (cabinets.length === 0) {
-			res.status(404).json({ message: 'No cabinets found by given id' });
+			res.status(404).json({ message: 'No locker found by given id' });
 			return;
 		}
 		res.status(200).json({ cabinets });
@@ -26,7 +26,7 @@ const getNearestLocker = async (req: Request, res: Response) => {
 		const result: QueryResult<Locker> = await pool.query(distanceQuery, [user_id]);
 		const nearest_lockers: Locker[] = result.rows;
 		if (nearest_lockers.length === 0) {
-			res.status(404).json({ message: 'No cabinets found by given id' });
+			res.status(404).json({ message: 'No lockers found near given user id' });
 			return;
 		}
 		res.status(200).json(
