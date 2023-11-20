@@ -14,11 +14,13 @@ CREATE TABLE locations (
 
 CREATE TABLE users (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  first_name VARCHAR(100) NOT NULL,
-  last_name VARCHAR(100) NOT NULL,
+  full_name VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
+  address_line_1 VARCHAR(100),
+  address_line_2 VARCHAR(100),
   password_salt VARCHAR(60) NOT NULL,
   password_hash VARCHAR(60) NOT NULL,
+  zip_code VARCHAR(5),
   phone_number VARCHAR(20),
   -- This should go into a separate table (user_roles)
   user_role VARCHAR(20) CHECK (user_role IN ('consumer', 'driver', 'admin')),

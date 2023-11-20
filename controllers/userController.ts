@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 import { pool } from '../utils/database';
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
 
 dotenv.config();
 
@@ -16,17 +17,29 @@ export class UserController {
     return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET as Secret, { expiresIn: '30min' });
   }
 
-  static registerUser(req: Request, res: Response) {
+  static registerUser = async (req: Request, res: Response) => {
     // Implement user registration logic
-    const { username, email, password } = req.body;
-
+    const { fullName, phoneNumber, addressLine1, addressLine2, zipCode, email, password } = req.body;
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
     // Your registration logic to save the user to the database
+    pool.query(
+      'INSERT INTO users (user_role, full_name, phone_number, address_line_1, address_line_2, zip_code, email, password_hash) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      ['consumer', fullName, phoneNumber, addressLine1, addressLine2, zipCode, email, hashedPassword],
+      (error, /*results*/) => {
+        if (error) {
+          res.status(500).json({ message: 'Error registering user' });
+        } else {
+          const user = { email }; // Mock user for token generation
+    
+          const accessToken = UserController.generateAccessToken(user);
+          const refreshToken = UserController.generateRefreshToken(user);
 
-    const user = { username, email, password }; // Mock user for token generation
-    const accessToken = UserController.generateAccessToken(user);
-    const refreshToken = UserController.generateRefreshToken(user);
-
-    res.json({ accessToken, refreshToken });
+          res.json({ accessToken, refreshToken });
+            res.status(201).json({ message: 'Parcel sent successfully' });
+          }
+      }
+    );
   }
 
   static loginUser(req: Request, res: Response) {
