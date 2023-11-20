@@ -1,7 +1,7 @@
+import dotenv from 'dotenv';
 import { Request, Response } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 import { pool } from '../utils/database';
-import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -52,36 +52,29 @@ export class UserController {
   }
 
   
-  static async getUserInfo(req: Request, res: Response) {
+  static async getUserById(req: Request, res: Response) {
     const userId = req.params.id;
   
     try {
-      // Fetch user information
-      const userQuery = 'SELECT * FROM users WHERE id = $1';
+      const userQuery = 'SELECT id, first_name, last_name, email, phone_number, updated_at, created_at, (SELECT json_agg(parcels) FROM parcels WHERE parcels.sender_id = users.id OR parcels.recipient_id = users.id) AS parcels FROM users WHERE users.id = $1';
       const userResult = await pool.query(userQuery, [userId]);
   
       if (userResult.rows.length === 0) {
         return res.status(404).json({ message: 'User not found' });
       }
   
-      const user = userResult.rows[0]; // Retrieve user details
-  
-      // Fetch parcel history linked to the user
-      const parcelQuery = 'SELECT * FROM parcels WHERE sender_id = $1 OR recipient_id = $1';
-      const parcelResult = await pool.query(parcelQuery, [userId]);
-  
-      const parcelHistory = parcelResult.rows;
-  
-      const userInfo = {
-        user,
-        parcelHistory,
-        // Include any other user-related information here
+      const user = userResult.rows[0];
+      const remappedUserParcels = {
+        ...user,
+        parcels: user.parcels.map((parcel: Parcel) => {
+          const { driver_id, ...parcelInfo } = parcel;
+          return parcelInfo;
+        }),
       };
-  
-      return res.status(200).json(userInfo);
-    } catch (error) {
+      return res.status(200).json(remappedUserParcels);
+    } catch (error: any) {
       console.error(error);
-      return res.status(500).json({ message: 'Error retrieving user information' });
+      return res.status(500).json({ message: error.message });
     }
   }
   
