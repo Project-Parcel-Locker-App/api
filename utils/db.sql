@@ -44,9 +44,9 @@ CREATE TABLE parcels (
 CREATE TABLE cabinets (
   id SERIAL PRIMARY KEY,
   cabinet_size VARCHAR(2) CHECK (UPPER(cabinet_size) IN ('S', 'M', 'L', 'XL')),
-  cabinet_status VARCHAR(15) CHECK (cabinet_status IN ('available', 'reserved', 'in-use', 'out-of-service')),
+  locker_id INT NOT NULL,
   parcel_id UUID REFERENCES parcels(id) ON DELETE CASCADE ON UPDATE CASCADE,
   location_id INT NOT NULL REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE,
   updated_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW()
-);
+); 
