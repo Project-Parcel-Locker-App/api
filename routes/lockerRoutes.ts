@@ -4,6 +4,6 @@ import { getLockerById, getNearestLocker } from '../controllers/lockerController
 const lockerRouter = Router();
 
 lockerRouter.get('/:id', getLockerById);
-lockerRouter.get('/nearest/:user_id', getNearestLocker);
+lockerRouter.get('/nearest/:userId', getNearestLocker);
 
-export default lockerRouter;
+export { lockerRouter };

@@ -6,12 +6,11 @@ const getLockerById = async (req: Request, res: Response) => {
 	try {
 		const location_id = parseInt(req.params.id);
 		const sql: string =
-			'SELECT id, locker_id, cabinet_size, cabinet_status, (SELECT row_to_json(parcels) FROM parcels WHERE parcels.id = cabinets.parcel_id) as parcel FROM cabinets WHERE locker_id = $1;';
+			'SELECT id, cabinet_size, (SELECT row_to_json(parcels) FROM parcels WHERE parcels.id = cabinets.parcel_id) as parcel FROM cabinets WHERE locker_id = $1;';
 		const result: QueryResult<Cabinet> = await pool.query(sql, [location_id]);
 		const cabinets: Cabinet[] = result.rows;
 		if (cabinets.length === 0) {
 			res.status(404).json({ message: 'No locker found by given id' });
-			return;
 		}
 		res.status(200).json({ cabinets });
 	} catch (err: any) {
@@ -21,7 +20,7 @@ const getLockerById = async (req: Request, res: Response) => {
 
 const getNearestLocker = async (req: Request, res: Response) => {
 	try {
-		const user_id: string = req.params.user_id;
+		const user_id: string = req.params.userId;
 		const distanceQuery = 'SELECT * FROM get_nearest_lockers($1)'; // Returns locker_id, location_id, distance
 
 		const result: QueryResult<Locker> = await pool.query(distanceQuery, [
@@ -30,7 +29,6 @@ const getNearestLocker = async (req: Request, res: Response) => {
 		const nearest_lockers: Locker[] = result.rows;
 		if (nearest_lockers.length === 0) {
 			res.status(404).json({ message: 'No lockers found near given user id' });
-			return;
 		}
 		res.status(200).json(
 			nearest_lockers.map((locker) => {
