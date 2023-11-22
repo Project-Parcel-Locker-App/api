@@ -36,7 +36,7 @@ CREATE TABLE parcels (
   driver_id UUID REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   parcel_status VARCHAR(20) CHECK (parcel_status IN ('pending', 'in-transit', 'ready-for-pickup', 'delivered')),
   delivery_code VARCHAR(6),
-  in_transit_at TIMESTAMP,
+  ready_for_pickup_at TIMESTAMP,
   updated_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW()
 );
