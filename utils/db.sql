@@ -28,6 +28,7 @@ CREATE TABLE users (
 
 CREATE TABLE parcels (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  delivery_code VARCHAR(6),
   parcel_weight DECIMAL(10, 2),
   special_instructions TEXT,
   parcel_size VARCHAR(2) NOT NULL CHECK (UPPER(parcel_size) IN ('S', 'M', 'L', 'XL')),
@@ -35,7 +36,6 @@ CREATE TABLE parcels (
   recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   driver_id UUID REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   parcel_status VARCHAR(20) CHECK (parcel_status IN ('pending', 'in-transit', 'ready-for-pickup', 'delivered')),
-  delivery_code VARCHAR(6),
   ready_for_pickup_at TIMESTAMP,
   updated_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW()
@@ -43,10 +43,10 @@ CREATE TABLE parcels (
 
 CREATE TABLE cabinets (
   id SERIAL PRIMARY KEY,
-  cabinet_size VARCHAR(2) CHECK (UPPER(cabinet_size) IN ('S', 'M', 'L', 'XL')),
   locker_id INT NOT NULL,
+  cabinet_size VARCHAR(2) CHECK (UPPER(cabinet_size) IN ('S', 'M', 'L', 'XL')),
   parcel_id UUID REFERENCES parcels(id) ON DELETE CASCADE ON UPDATE CASCADE,
   location_id INT NOT NULL REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE,
   updated_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW()
-); 
+);
