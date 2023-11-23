@@ -3,7 +3,7 @@ import express from 'express';
 import {
 	getCabinetById,
 	reserveCabinet,
-} from '../controllers/cabinetController';
+} from '../controllers/cabinetController.js';
 
 const cabinetRouter = express.Router();
 

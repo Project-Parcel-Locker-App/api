@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { handle404Error } from 'utils/handle404Error';
-import userRouter from './userRoutes';
-import parcelRouter from './parcelRoutes';
-import cabinetRouter from './cabinetRoutes';
-import { lockerRouter } from './lockerRoutes';
+import { handle404Error } from '../utils/handle404Error.js';
+import userRouter from './userRoutes.js';
+import parcelRouter from './parcelRoutes.js';
+import cabinetRouter from './cabinetRoutes.js';
+import { lockerRouter } from './lockerRoutes.js';
 
 const appRouter = Router();
 
