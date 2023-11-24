@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { pool } from '../utils/database';
 import { QueryResult } from 'pg';
+import { pool } from '../utils/database.js';
 
 const getCabinetById = async (req: Request, res: Response) => {
 	try {
@@ -17,8 +17,6 @@ const getCabinetById = async (req: Request, res: Response) => {
 		res.status(500).json({ error: err.message });
 	}
 };
-
-
 
 const reserveCabinet = async (req: Request, res: Response) => {
 	try {
