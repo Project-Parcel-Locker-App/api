@@ -1,11 +1,19 @@
 import express from 'express';
-import { UserController } from '../controllers/userController.js';
+import { authenticateToken } from 'middleware/authorization.js';
+import {
+	deleteUserById,
+	getUserById,
+	registerUser,
+	updateUserById,
+} from '../controllers/userController.js';
 
 const userRouter = express.Router();
 
-userRouter.post('/register', UserController.registerUser);
-userRouter.post('/login', UserController.loginUser);
-userRouter.post('/logout', UserController.logoutUser);
-userRouter.get('/:id', UserController.getUserById);
+userRouter.post('/register', registerUser);
+userRouter
+	.route('/:id')
+	.get(authenticateToken, getUserById)
+	.patch(authenticateToken, updateUserById)
+	.delete(authenticateToken, deleteUserById);
 
-export default userRouter;
+export { userRouter };
