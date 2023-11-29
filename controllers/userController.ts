@@ -151,7 +151,7 @@ const updateUserById = async (req: Request, res: Response) => {
 		console.error(err);
 		return res.status(500).json({ message: err.message });
 	}
-}
+};
 
 const deleteUserById = async (req: Request, res: Response) => {
 	const userId = req.params.id;
@@ -170,6 +170,45 @@ const deleteUserById = async (req: Request, res: Response) => {
 		console.error(err);
 		return res.status(500).json({ message: err.message });
 	}
-}
+};
 
-export { registerUser, getUserById, updateUserById, deleteUserById };
+const getNearestLocker = async (req: Request, res: Response) => {
+	try {
+		const userId = req.params.id;
+		if (!userId) {
+			return res
+				.status(400)
+				.json({ message: 'User ID not provided or it has an invalid format' });
+		}
+		const distanceQuery = 'SELECT * FROM get_nearest_lockers($1)';
+
+		const result: QueryResult<Locker> = await pool.query(distanceQuery, [
+			userId,
+		]);
+		const lockers: Locker[] = result.rows;
+		if (lockers.length === 0) {
+			res.status(404).json({ message: 'No lockers found near given user id' });
+		}
+		// Show only those within a 5km radius
+		//const filteredLockers = lockers.filter((locker) => locker.distance < 5.0);
+		res.status(200).json(
+			lockers.map((locker) => {
+				return {
+					...locker,
+					distance: Number(locker.distance.toFixed(2)),
+				};
+			}),
+		);
+	} catch (err: any) {
+		console.error(err.message);
+		return res.status(500).json({ error: 'Internal server error' });
+	}
+};
+
+export {
+	registerUser,
+	getUserById,
+	updateUserById,
+	deleteUserById,
+	getNearestLocker,
+};
