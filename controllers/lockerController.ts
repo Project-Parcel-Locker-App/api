@@ -2,26 +2,56 @@ import { Request, Response } from 'express';
 import { QueryResult } from 'pg';
 import { pool } from '../utils/database.js';
 
-const getLockerById = async (req: Request, res: Response) => {
+const getAllLockers = async (_req: Request, res: Response) => {
 	try {
-		const location_id = parseInt(req.params.id);
 		const sql =
-			'SELECT id, cabinet_size, (SELECT row_to_json(parcels) FROM parcels WHERE parcels.id = cabinets.parcel_id) as parcel FROM cabinets WHERE locker_id = $1;';
-		const result: QueryResult<Cabinet> = await pool.query(sql, [location_id]);
-		const cabinets: Cabinet[] = result.rows;
-		if (cabinets.length === 0) {
-			res.status(404).json({ message: 'No locker found by given id' });
-		}
-		res.status(200).json({ cabinets });
+			'SELECT c.locker_id, l.street, l.zip_code, l.city, l.country FROM cabinets c JOIN locations l ON c.location_id = l.id GROUP BY c.locker_id, l.street, l.zip_code, l.city, l.country;';
+		const result: QueryResult<Locker> = await pool.query(sql);
+		const lockers: Locker[] = result.rows;
+		return res.status(200).json({ lockers });
 	} catch (err: any) {
-		res.status(500).json({ error: err.message });
+		console.error(err.message);
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
 	}
 };
 
-const getNearestLocker = async (req: Request, res: Response) => {
+const getLockerById = async (req: Request, res: Response) => {
 	try {
-		const userId = req.params.userId;
-		const distanceQuery = 'SELECT * FROM get_nearest_lockers($1)'; // Returns locker_id, coordinates, distance
+		const lockerId = parseInt(req.params.id);
+		if (!Number.isInteger(lockerId)) {
+			return res.status(400).json({
+				message: 'Locker ID not provided or it has an invalid format',
+			});
+		}
+		const sql =
+			'SELECT c.locker_id, COUNT(c.locker_id) as cabinets_count, l.street, l.zip_code, l.city, l.country, l.latitude as lat, l.longitude as lon FROM cabinets c JOIN locations l ON c.location_id = l.id WHERE c.locker_id = $1 GROUP BY c.locker_id, l.street, l.zip_code, l.city, l.country, l.latitude, l.longitude;';
+		const result: QueryResult<Cabinet> = await pool.query(sql, [lockerId]);
+		const locker: Locker = result.rows[0];
+		if (!locker) {
+			return res
+				.status(404)
+				.json({ message: 'No locker found by the given locker id' });
+		}
+		return res.status(200).json(locker);
+	} catch (err: any) {
+		console.error(err.message);
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
+	}
+};
+
+const getNearestLockers = async (req: Request, res: Response) => {
+	try {
+		const userId = req.params.id;
+		if (!userId) {
+			return res
+				.status(400)
+				.json({ message: 'User ID not provided or it has an invalid format' });
+		}
+		const distanceQuery = 'SELECT * FROM get_nearest_lockers($1)';
 
 		const result: QueryResult<Locker> = await pool.query(distanceQuery, [
 			userId,
@@ -30,58 +60,79 @@ const getNearestLocker = async (req: Request, res: Response) => {
 		if (lockers.length === 0) {
 			res.status(404).json({ message: 'No lockers found near given user id' });
 		}
-		// Show only those within a 5km radius
-		const filteredLockers = lockers.filter((locker) => locker.distance < 5.0);
-		res.status(200).json(
-			filteredLockers.map((locker) => {
-				return {
-					...locker,
-					distance: Number(locker.distance.toFixed(2)),
-				};
-			}),
-		);
+
+		// Lockers within a 5km radius
+		//const filteredLockers = lockers.filter((locker) => locker.distance < 5.0);
+
+		const fomattedLockers = lockers.map((locker) => {
+			return {
+				...locker,
+				distance: Number(locker.distance.toFixed(2)),
+			};
+		});
+		return res.status(200).json(fomattedLockers);
 	} catch (err: any) {
-		res.status(500).json({ error: err.message });
+		console.error(err.message);
+		return res.status(500).json({ error: 'Internal server error' });
 	}
 };
 
-const assignCabinet = async (req: Request, res: Response) => {
+const getLockerCabinets = async (req: Request, res: Response) => {
 	try {
 		const lockerId = parseInt(req.params.id);
-		const { parcelId, parcelSize } = req.body;
-
-		// Query to find an available cabinet for the specified locker and parcel size
-		const cabinetQuery: string =
-			'SELECT id FROM cabinets WHERE locker_id = $1 AND cabinet_size = $2 AND parcel_id IS NULL LIMIT 1';
-		const cabinetResult: QueryResult<Cabinet> = await pool.query(cabinetQuery, [
-			lockerId,
-			parcelSize,
-		]);
-		const cabinetId: number | undefined = cabinetResult.rows[0]?.id;
-
-		// If no cabinet is available
-		if (cabinetId === undefined) {
-			return res.status(404).json({ error: 'No cabinet with desired size available' });
+		if (!Number.isInteger(lockerId)) {
+			return res.status(400).json({
+				message: 'Locker ID not provided or it has an invalid format',
+			});
 		}
-
-		// Query to update the cabinet with the specified parcel ID
-		const updateQuery: string =
-			'UPDATE cabinets SET parcel_id = $1 WHERE id = $2 RETURNING *';
-		const updateResult: QueryResult<Cabinet> = await pool.query(updateQuery, [
-			parcelId,
-			cabinetId,
-		]);
-		const cabinet: Cabinet = updateResult.rows[0];
-
-		// Update the parcel status to 'in-transit'
-		const parcelQuery: string =
-			'UPDATE parcels SET parcel_status = $1 WHERE id = $2 RETURNING *';
-		await pool.query(parcelQuery, ['in-transit', parcelId]);
-
-		res.status(200).json(cabinet);
+		const sql =
+			'SELECT id, cabinet_size, updated_at, (SELECT row_to_json(parcels) FROM parcels WHERE parcels.id = cabinets.parcel_id) as parcel FROM cabinets WHERE locker_id = $1;';
+		const result: QueryResult<Cabinet> = await pool.query(sql, [lockerId]);
+		const cabinets: Cabinet[] = result.rows;
+		if (cabinets.length === 0) {
+			return res
+				.status(404)
+				.json({ message: 'No cabinets found by the given locker id' });
+		}
+		return res.status(200).json({ cabinets });
 	} catch (err: any) {
-		res.status(500).json({ error: err.message });
+		console.error(err.message);
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
 	}
 };
 
-export { getLockerById, getNearestLocker, assignCabinet };
+const getCabinetById = async (req: Request, res: Response) => {
+	try {
+		const cabinetId = parseInt(req.params.cabinetId);
+		if (!Number.isInteger(cabinetId)) {
+			return res.status(400).json({
+				message: 'Cabinet ID not provided or it has an invalid format',
+			});
+		}
+		const sql =
+			'SELECT id, cabinet_size, updated_at, (SELECT row_to_json(parcels) FROM parcels WHERE parcels.id = cabinets.parcel_id) as parcel FROM cabinets WHERE id = $1;';
+		const result: QueryResult<Cabinet> = await pool.query(sql, [cabinetId]);
+		const cabinet: Cabinet = result.rows[0];
+		if (cabinet === undefined) {
+			return res
+				.status(404)
+				.json({ message: 'No cabinet found by the given cabinet id' });
+		}
+		return res.status(200).json({ cabinet });
+	} catch (err: any) {
+		console.error(err.message);
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
+	}
+};
+
+export {
+	getLockerById,
+	getAllLockers,
+	getNearestLockers,
+	getLockerCabinets,
+	getCabinetById,
+};

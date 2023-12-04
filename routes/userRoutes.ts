@@ -1,3 +1,4 @@
+import { getNearestLockers } from 'controllers/lockerController.js';
 import express from 'express';
 import { authenticateToken } from 'middleware/authorization.js';
 import {
@@ -9,6 +10,7 @@ import {
 
 const userRouter = express.Router();
 
+userRouter.get('/:id/lockers-nearby', getNearestLockers);
 userRouter.post('/register', registerUser);
 userRouter
 	.route('/:id')

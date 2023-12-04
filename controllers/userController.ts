@@ -84,7 +84,7 @@ const registerUser = async (req: Request, res: Response) => {
 				httpOnly: true,
 				maxAge: 1000 * 60 * 60 * 24,
 				secure: process.env.NODE_ENV === 'production' ? true : false,
-				path: '/api/auth/refresh-token',
+				path: '/api/auth/token/refresh',
 			})
 			.json({
 				user_id: newUser.id,
@@ -151,7 +151,7 @@ const updateUserById = async (req: Request, res: Response) => {
 		console.error(err);
 		return res.status(500).json({ message: err.message });
 	}
-}
+};
 
 const deleteUserById = async (req: Request, res: Response) => {
 	const userId = req.params.id;
@@ -170,6 +170,6 @@ const deleteUserById = async (req: Request, res: Response) => {
 		console.error(err);
 		return res.status(500).json({ message: err.message });
 	}
-}
+};
 
 export { registerUser, getUserById, updateUserById, deleteUserById };
