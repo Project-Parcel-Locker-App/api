@@ -11,7 +11,9 @@ const getAllLockers = async (_req: Request, res: Response) => {
 		return res.status(200).json({ lockers });
 	} catch (err: any) {
 		console.error(err.message);
-		return res.status(500).json({ error: 'Internal server error. Please try again later' });
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
 	}
 };
 
@@ -35,7 +37,43 @@ const getLockerById = async (req: Request, res: Response) => {
 		return res.status(200).json(locker);
 	} catch (err: any) {
 		console.error(err.message);
-		return res.status(500).json({ error: 'Internal server error. Please try again later' });
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
+	}
+};
+
+const getNearestLockers = async (req: Request, res: Response) => {
+	try {
+		const userId = req.params.id;
+		if (!userId) {
+			return res
+				.status(400)
+				.json({ message: 'User ID not provided or it has an invalid format' });
+		}
+		const distanceQuery = 'SELECT * FROM get_nearest_lockers($1)';
+
+		const result: QueryResult<Locker> = await pool.query(distanceQuery, [
+			userId,
+		]);
+		const lockers: Locker[] = result.rows;
+		if (lockers.length === 0) {
+			res.status(404).json({ message: 'No lockers found near given user id' });
+		}
+
+		// Lockers within a 5km radius
+		//const filteredLockers = lockers.filter((locker) => locker.distance < 5.0);
+
+		const fomattedLockers = lockers.map((locker) => {
+			return {
+				...locker,
+				distance: Number(locker.distance.toFixed(2)),
+			};
+		});
+		return res.status(200).json(fomattedLockers);
+	} catch (err: any) {
+		console.error(err.message);
+		return res.status(500).json({ error: 'Internal server error' });
 	}
 };
 
@@ -59,7 +97,9 @@ const getLockerCabinets = async (req: Request, res: Response) => {
 		return res.status(200).json({ cabinets });
 	} catch (err: any) {
 		console.error(err.message);
-		return res.status(500).json({ error: 'Internal server error. Please try again later' });
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
 	}
 };
 
@@ -83,8 +123,16 @@ const getCabinetById = async (req: Request, res: Response) => {
 		return res.status(200).json({ cabinet });
 	} catch (err: any) {
 		console.error(err.message);
-		return res.status(500).json({ error: 'Internal server error. Please try again later' });
+		return res
+			.status(500)
+			.json({ error: 'Internal server error. Please try again later' });
 	}
 };
 
-export { getLockerById, getAllLockers, getLockerCabinets, getCabinetById };
+export {
+	getLockerById,
+	getAllLockers,
+	getNearestLockers,
+	getLockerCabinets,
+	getCabinetById,
+};
