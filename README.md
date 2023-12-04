@@ -28,6 +28,11 @@ To use this API locally, follow these steps:
 
 | Endpoint | Method | Auth | Function |
 | -------- | ------ | -----| -------- |
+| /auth/login | POST | --- | Login by email and password
+| /auth/logout | POST | Access token | Logout user (by removing cookie)
+| /auth/token/refresh | POST | Refresh token | Obtain a new access token
+| /users/register | POST | --- | Register new user
+| /users/userID | GET - PATCH - DELETE | Access token | Retrieve, update and delete user by ID
 | /users/lockers-nearby | GET | Access token | Retrieve lockers information near the user
 | /lockers | GET | --- | Retrieve information about all the lockers
 | /lockers/lockerID | GET | --- | Retrieve detailed information about a specific locker
