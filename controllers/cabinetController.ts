@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { QueryResult } from 'pg';
-import { pool } from '../utils/database.js';
+import { pool } from '../utils/dbConnect.js';
 
 const reserveCabinet = async (req: Request, res: Response) => {
 	try {

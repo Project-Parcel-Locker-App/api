@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { pool } from '../utils/database';
+import { pool } from '../utils/dbConnect.js';
 
 export class ParcelController {
   static sendParcel(req: Request, res: Response) {

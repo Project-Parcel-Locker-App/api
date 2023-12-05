@@ -1,12 +1,11 @@
 import { genSalt, hash } from 'bcrypt';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { Request, Response } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 import { getCoordinates } from 'utils/geolocation.js';
-import { User } from '../schemas/user.js';
-import { pool } from '../utils/database.js';
-
-dotenv.config();
+// import { User } from '../schemas/user.js';
+import { pool } from '../utils/dbConnect.js';
+import { signTokens } from 'utils/tokenHandler.js';
 
 const registerUser = async (req: Request, res: Response) => {
 	let { password } = req.body;
@@ -52,31 +51,27 @@ const registerUser = async (req: Request, res: Response) => {
 		const location = addressResult.rows[0];
 
 		const createUserQuery =
-			'INSERT INTO users (first_name, last_name, email, phone_number, password_salt, password_hash, user_role, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *';
+			'INSERT INTO users (first_name, last_name, email, phone_number, password_hash, user_role, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *';
 		const newUserResult = await pool.query(createUserQuery, [
 			firstName,
 			lastName,
 			email,
 			phoneNumber,
-			salt,
 			hashedPassword,
 			userRole,
 			location.id,
 		]);
 		const newUser: User = newUserResult.rows[0];
 
-		// Generate access token
-		const accessToken = jwt.sign(
-			{ _id: newUser, user_role: userRole },
-			process.env.ACCESS_TOKEN_SECRET as Secret,
-			{ expiresIn: '15m' },
-		);
-		// Generate refresh token
-		const refreshToken = jwt.sign(
-			{ _id: newUser, user_role: userRole },
-			process.env.REFRESH_TOKEN_SECRET as Secret,
-			{ expiresIn: '1d' },
-		);
+		// Generate access and refresh tokens
+		const { accessToken, refreshToken } = signTokens({
+			_id: newUser.id,
+			user_role: userRole,
+		});
+
+		// Store refresh token in database
+		const updateQuery = 'UPDATE users SET refresh_token = $1 WHERE id = $2';
+		await pool.query(updateQuery, [refreshToken, newUser.id]);
 
 		return res
 			.status(201)
@@ -165,7 +160,7 @@ const deleteUserById = async (req: Request, res: Response) => {
 		}
 
 		const user: User = userResult.rows[0];
-		return res.status(200).json(user);
+		return res.status(200).json({ message: `User ${user.id} deleted` });
 	} catch (err: any) {
 		console.error(err);
 		return res.status(500).json({ message: err.message });
