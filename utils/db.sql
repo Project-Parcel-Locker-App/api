@@ -17,8 +17,8 @@ CREATE TABLE users (
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
-  password_salt VARCHAR(60) NOT NULL,
   password_hash VARCHAR(60) NOT NULL,
+  refresh_token VARCHAR(255),
   phone_number VARCHAR(20),
   user_role VARCHAR(20) CHECK (user_role IN ('consumer', 'driver', 'admin')),
   location_id INT REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -28,6 +28,7 @@ CREATE TABLE users (
 
 CREATE TABLE parcels (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  sending_code VARCHAR(6),
   delivery_code VARCHAR(6),
   parcel_weight DECIMAL(10, 2),
   special_instructions TEXT,

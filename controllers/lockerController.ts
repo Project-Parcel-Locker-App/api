@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { QueryResult } from 'pg';
-import { pool } from '../utils/database.js';
+import { pool } from '../utils/dbConnect.js';
 
 const getAllLockers = async (_req: Request, res: Response) => {
 	try {

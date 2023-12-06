@@ -25,14 +25,22 @@ To use this API locally, follow these steps:
 ```
 
 ## API URIs (Endpoints)
+The base URL for all endpoints is: `https://localhost:PORT/api/`
 
-| Endpoint | Method | Auth | Function |
+| Endpoint | Method | Auth | Description |
 | -------- | ------ | -----| -------- |
+| /auth/login | POST | No (auth origins) | Login using email and password 
+| /auth/logout | POST | Access token | Logout user (remove cookie)
+| /auth/token/refresh | POST | Refresh token | Obtain a new access token
+| /users/register | POST | No (auth origins) | Register a new user
+| /users/userID | GET - PATCH - DELETE | Access token | Retrieve, update and delete user by ID
+| /users/userID/parcels | GET - POST | Access token | Retrieve and create user's parcels
+| /users/userID/parcels/parcelID | GET - PATCH | Access token | Retrieve and update user's parcel by ID
 | /users/lockers-nearby | GET | Access token | Retrieve lockers information near the user
-| /lockers | GET | --- | Retrieve information about all the lockers
-| /lockers/lockerID | GET | --- | Retrieve detailed information about a specific locker
-| /lockers/lockerID/cabinets | GET - POST | Access token | Retrieve and create info about locker's cabinets
-| /lockers/lockerID/cabinets/cabinetID | GET - PACTH | Access token | Retrieve and update cabinet by ID
+| /lockers | GET | No (auth origins)| Retrieve lockers' information
+| /lockers/lockerID | GET | No (auth origins) | Retrieve detailed information about a locker
+| /lockers/lockerID/cabinets | GET - POST | Access token | Retrieve and create cabinets' information
+| /lockers/lockerID/cabinets/cabinetID | GET - PATCH | Access token | Retrieve and update cabinet by ID
 
 
 

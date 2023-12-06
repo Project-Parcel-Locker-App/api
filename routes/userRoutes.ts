@@ -10,7 +10,7 @@ import {
 
 const userRouter = express.Router();
 
-userRouter.get('/:id/lockers-nearby', getNearestLockers);
+userRouter.get('/:id/nearby-lockers', getNearestLockers);
 userRouter.post('/register', registerUser);
 userRouter
 	.route('/:id')
