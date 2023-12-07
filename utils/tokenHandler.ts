@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import jwt, { Secret } from 'jsonwebtoken';
 
-const signTokens = (payload: object) => {
+const signTokens = (payload: User) => {
 	const accessToken = jwt.sign(
 		payload,
 		process.env.ACCESS_TOKEN_SECRET as Secret,
@@ -15,8 +15,8 @@ const signTokens = (payload: object) => {
 	return { accessToken, refreshToken };
 };
 
-const verifyToken = (token: string, secret: Secret): object => {
-	const decoded = jwt.verify(token, secret) as object;
+const verifyToken = (token: string, secret: Secret): User => {
+	const decoded: User = jwt.verify(token, secret);
 	return decoded;
 }
 

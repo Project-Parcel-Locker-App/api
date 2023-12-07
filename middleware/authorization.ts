@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { NextFunction, Request, Response } from 'express';
 import { Secret, VerifyErrors } from 'jsonwebtoken';
+// import { userModel } from 'models/users.js';
 // import { User } from '../schemas/user.js';
 import { pool } from '../utils/dbConnect.js';
 import { verifyToken } from '../utils/tokenHandler.js';
@@ -19,7 +20,7 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 	try {
 		// Verify access token
 		const decoded = verifyToken(accessToken, process.env.ACCESS_TOKEN_SECRET as Secret);
-		(req as CustomRequest).user = decoded as User;
+		(req as CustomRequest).user = decoded;
 		return next();
 	} catch (err: VerifyErrors) {
 		console.error(err);
@@ -28,7 +29,7 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 				.status(401)
 				.json({ message: 'Unauthorized: Token is invalid or has expired' });
 		}
-		return res.status(403).json({ message: `Forbidden access: ${err.message || 'Unknown error'}` });
+		return res.status(403).json({ message: 'Forbidden access' });
 	}
 };
 
@@ -41,7 +42,7 @@ const authenticateRefreshToken = async (req: Request,	res: Response, next: NextF
 	try {
 		// Verify refresh token
 		const decoded = verifyToken(refreshToken, process.env.REFRESH_TOKEN_SECRET as Secret);
-		(req as CustomRequest).user = decoded as User;
+		(req as CustomRequest).user = decoded;
 
 		// Verify refresh token is stored in database and belongs to user
 		const userQuery = 'SELECT id FROM users WHERE refresh_token = $1';
@@ -60,7 +61,7 @@ const authenticateRefreshToken = async (req: Request,	res: Response, next: NextF
 				.status(401)
 				.json({ message: 'Unauthorized: Token is invalid or has expired' });
 		}
-		return res.status(403).json({ message: `Forbidden access: ${err.message || 'Unknown error'}` });
+		return res.status(403).json({ message: 'Forbidden access' });
 	}
 };
 

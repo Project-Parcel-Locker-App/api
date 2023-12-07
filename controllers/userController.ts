@@ -1,11 +1,11 @@
 import { genSalt, hash } from 'bcrypt';
 import 'dotenv/config';
 import { Request, Response } from 'express';
-import jwt, { Secret } from 'jsonwebtoken';
+import { parcelModel } from 'models/parcels.js';
 import { getCoordinates } from 'utils/geolocation.js';
-// import { User } from '../schemas/user.js';
-import { pool } from '../utils/dbConnect.js';
 import { signTokens } from 'utils/tokenHandler.js';
+import { Parcel } from '../schemas/parcel.js';
+import { pool } from '../utils/dbConnect.js';
 
 const registerUser = async (req: Request, res: Response) => {
 	let { password } = req.body;
@@ -87,7 +87,11 @@ const registerUser = async (req: Request, res: Response) => {
 			});
 	} catch (err: any) {
 		console.error(err);
-		return res.status(500).json({ message: err.message });
+		return res.status(500).json({
+			message: 'Task failed successfully',
+			error: 'Internal server error',
+			suggestion: 'Please try again later',
+		});
 	}
 };
 
@@ -96,7 +100,7 @@ const getUserById = async (req: Request, res: Response) => {
 
 	try {
 		const userQuery =
-			'SELECT id, first_name, last_name, email, phone_number, updated_at, created_at, (SELECT json_agg(parcels) FROM parcels WHERE parcels.sender_id = users.id OR parcels.recipient_id = users.id) AS parcels FROM users WHERE users.id = $1';
+			'SELECT id, first_name, last_name, email, phone_number, user_role, (SELECT row_to_json(locations) FROM locations WHERE locations.id = users.location_id) AS address, updated_at, created_at FROM users WHERE users.id = $1';
 		const userResult = await pool.query(userQuery, [userId]);
 
 		if (userResult.rows.length === 0) {
@@ -117,7 +121,11 @@ const getUserById = async (req: Request, res: Response) => {
 		return res.status(200).json(remappedUserParcels);
 	} catch (err: any) {
 		console.error(err);
-		return res.status(500).json({ message: err.message });
+		return res.status(500).json({
+			message: 'Task failed successfully',
+			error: 'Internal server error',
+			suggestion: 'Please try again later',
+		});
 	}
 };
 
@@ -144,7 +152,11 @@ const updateUserById = async (req: Request, res: Response) => {
 		return res.status(200).json(user);
 	} catch (err: any) {
 		console.error(err);
-		return res.status(500).json({ message: err.message });
+		return res.status(500).json({
+			message: 'Task failed successfully',
+			error: 'Internal server error',
+			suggestion: 'Please try again later',
+		});
 	}
 };
 
@@ -163,8 +175,58 @@ const deleteUserById = async (req: Request, res: Response) => {
 		return res.status(200).json({ message: `User ${user.id} deleted` });
 	} catch (err: any) {
 		console.error(err);
-		return res.status(500).json({ message: err.message });
+		return res.status(500).json({
+			message: 'Task failed successfully',
+			error: 'Internal server error',
+			suggestion: 'Please try again later',
+		});
 	}
 };
 
-export { registerUser, getUserById, updateUserById, deleteUserById };
+const getUserParcels = async (req: Request, res: Response) => {
+	const userId = req.params.id;
+
+	try {
+		const userParcels = await parcelModel.getUserParcels(userId);
+		return res.status(200).json(userParcels);
+	} catch (err: any) {
+		console.error(err);
+		return res.status(500).json({
+			message: 'Task failed successfully',
+			error: 'Internal server error',
+			suggestion: 'Please try again later',
+		});
+	}
+};
+
+const getUserParcelById = async (req: Request, res: Response) => {
+	const userId = req.params.id;
+	const parcelId = req.params.parcelId;
+
+	try {
+		const userParcel = await parcelModel.getParcelById(parcelId);
+		if (!userParcel) {
+			return res.status(404).json({ message: 'Parcel not found' });
+		}
+		if (userParcel.sender_id !== userId && userParcel.recipient_id !== userId) {
+			return res.status(403).json({ message: 'Forbidden access' });
+		}
+		return res.status(200).json(userParcel);
+	} catch (err: any) {
+		console.error(err);
+		return res.status(500).json({
+			message: 'Task failed successfully',
+			error: 'Internal server error',
+			suggestion: 'Please try again later',
+		});
+	}
+}
+
+export {
+	registerUser,
+	getUserById,
+	updateUserById,
+	deleteUserById,
+	getUserParcels,
+	getUserParcelById,
+};

@@ -53,12 +53,14 @@ const login = async (req: Request, res: Response) => {
 			.cookie('_refresh_token_', refreshToken, {
 				httpOnly: true,
 				maxAge: 1000 * 60 * 60 * 24 * 7,
+				sameSite: 'none',
 				secure: process.env.NODE_ENV === 'production' ? true : false,
 				path: '/api/auth/refresh-token',
 			})
 			.json({
 				user_id: user.id,
 				_access_token_: accessToken,
+				_refresh_token_: refreshToken,
 			});
 	} catch (err) {
 		console.error(err);
