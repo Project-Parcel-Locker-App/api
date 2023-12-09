@@ -2,6 +2,7 @@ import { genSalt, hash } from 'bcrypt';
 import 'dotenv/config';
 import { Request, Response } from 'express';
 import { parcelModel } from 'models/parcels.js';
+import { User } from 'schemas/user.js';
 import { getCoordinates } from 'utils/geolocation.js';
 import { signTokens } from 'utils/tokenHandler.js';
 import { Parcel } from '../schemas/parcel.js';
@@ -85,7 +86,7 @@ const registerUser = async (req: Request, res: Response) => {
 				user_id: newUser.id,
 				_access_token_: accessToken,
 			});
-	} catch (err: any) {
+	} catch (err) {
 		console.error(err);
 		return res.status(500).json({
 			message: 'Task failed successfully',
@@ -187,7 +188,10 @@ const getUserParcels = async (req: Request, res: Response) => {
 	const userId = req.params.id;
 
 	try {
-		const userParcels = await parcelModel.getUserParcels(userId);
+		const userParcels = await parcelModel.getParcelsbyUserId(userId);
+		if (userParcels.length === 0) {
+			return res.status(404).json({ message: 'No parcels found' });
+		}
 		return res.status(200).json(userParcels);
 	} catch (err: any) {
 		console.error(err);
@@ -199,17 +203,14 @@ const getUserParcels = async (req: Request, res: Response) => {
 	}
 };
 
-const getUserParcelById = async (req: Request, res: Response) => {
+const getUserParcelInfo = async (req: Request, res: Response) => {
 	const userId = req.params.id;
 	const parcelId = req.params.parcelId;
 
 	try {
-		const userParcel = await parcelModel.getParcelById(parcelId);
+		const userParcel = await parcelModel.getParcelById(parcelId, userId);
 		if (!userParcel) {
 			return res.status(404).json({ message: 'Parcel not found' });
-		}
-		if (userParcel.sender_id !== userId && userParcel.recipient_id !== userId) {
-			return res.status(403).json({ message: 'Forbidden access' });
 		}
 		return res.status(200).json(userParcel);
 	} catch (err: any) {
@@ -228,5 +229,5 @@ export {
 	updateUserById,
 	deleteUserById,
 	getUserParcels,
-	getUserParcelById,
+	getUserParcelInfo,
 };

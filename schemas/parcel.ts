@@ -1,21 +1,17 @@
 import z from 'zod';
 
-export const parcelSchema = z.object({
+const parcelSchema = z.object({
 	id: z.string().uuid(),
-	delivery_code: z.number().positive(),
+	sending_code: z.number().positive(),
+	pickup_code: z.number().positive(),
 	parcel_weight: z.number().positive(),
 	special_instructions: z.string(),
 	parcel_size: z.enum(['S', 'M', 'L']),
 	sender_id: z.string().uuid(),
 	recipient_id: z.string().uuid(),
 	driver_id: z.string().uuid(),
-	parcel_status: z.enum(
-		['pending', 'in-transit', 'ready-for-pickup', 'delivered'],
-		{
-			required_error: 'Parcel status is required.',
-		},
-	),
-	ready_for_pickup_at: z.coerce.date(),
+	parcel_status: z.string().nullable(),
+	ready_for_pickup_at: z.union([z.string(), z.coerce.date(), z.null()]),
 	updated_at: z.coerce.date(),
 	created_at: z.coerce.date(),
 });

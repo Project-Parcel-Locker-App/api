@@ -34,7 +34,8 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const authenticateRefreshToken = async (req: Request,	res: Response, next: NextFunction) => {
-	const refreshToken: string | undefined = req.cookies._refresh_token_;
+	const refreshToken = req.headers.authorization?.split(' ')[1];
+	// const refreshToken: string | undefined = req.cookies._refresh_token_;
 	if (!refreshToken) {
 		return res.status(401).json({ message: 'Unauthorized: No token provided' });
 	}
