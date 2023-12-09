@@ -1,10 +1,29 @@
 import express from 'express';
-import ParcelController from '../controllers/parcelController.js'
+// import { parcelController } from '../controllers/parcelController.js';
 
 const parcelRouter = express.Router();
 
-parcelRouter.post('/send', ParcelController.sendParcel);
-parcelRouter.get('/parcels/', ParcelController.getParcelInfo);
-parcelRouter.put('/parcels/update', ParcelController.updateParcelStatus);
+// parcelRouter
+// 	.route('/')
+// 	.get(ParcelController.getAllParcels)
+// 	.post(parcelController.createParcel);
+// parcelRouter
+// 	.route('/:id')
+// 	.get(ParcelController.getParcelById)
+// 	.patch(ParcelController.updateParcelById)
+// 	.delete(ParcelController.deleteParcelById);
+// parcelRouter
+// 	.route('/:id/status')
+//  .get(ParcelController.getParcelStatusById)
+// 	.patch(ParcelController.updateParcelStatusById);
+// parcelRouter.(':id/pickup').patch(ParcelController.pickupParcelById);
+// parcelRouter.(':id/dropoff').patch(ParcelController.dropoffParcelById);
 
-export default parcelRouter;
+
+
+/*
+lockers/:lockerId/cabinets/:cabinetId/parcels
+lockers/:lockerId/parcels add and get parcels
+*/
+
+export { parcelRouter };

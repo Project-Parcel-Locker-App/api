@@ -1,10 +1,11 @@
 import { getNearestLockers } from 'controllers/lockerController.js';
 import express from 'express';
 import { authenticateToken } from 'middleware/authorization.js';
+import { createParcel, updateParcel } from '../controllers/parcelController.js';
 import {
 	deleteUserById,
 	getUserById,
-	getUserParcelById,
+	getUserParcelInfo,
 	getUserParcels,
 	registerUser,
 	updateUserById,
@@ -18,8 +19,10 @@ userRouter
 	.get(authenticateToken, getUserById)
 	.patch(authenticateToken, updateUserById)
 	.delete(authenticateToken, deleteUserById);
-userRouter.get('/:id/parcels', authenticateToken, getUserParcels);
-userRouter.get('/:id/parcels/:parcelId', authenticateToken, getUserParcelById);
+userRouter.route('/:id/parcels')
+	.get(authenticateToken, getUserParcels)
+	.post(authenticateToken, createParcel);
+userRouter.get('/:id/parcels/:parcelId', authenticateToken, getUserParcelInfo);
 userRouter.get('/:id/nearby-lockers', authenticateToken, getNearestLockers);
 
 export { userRouter };
