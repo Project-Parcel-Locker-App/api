@@ -29,10 +29,10 @@ The base URL for all endpoints is: `https://localhost:PORT/api/`
 
 | Endpoint | Method | Auth | Description |
 | -------- | ------ | -----| -------- |
-| /auth/login | POST | No (auth origins) | Login using email and password 
+| /auth/register | POST | No (auth origins) | Register a new user
+| /auth/login | POST | No (auth origins) | Login using email and password
 | /auth/logout | POST | Access token | Logout user (remove cookie)
 | /auth/token/refresh | POST | Refresh token | Obtain a new access token
-| /users/register | POST | No (auth origins) | Register a new user
 | /users/userID | GET - PATCH - DELETE | Access token | Retrieve, update and delete a user
 | /users/userID/parcels | GET - POST | Access token | Retrieve and create user's parcels
 | /users/userID/parcels/parcelID | GET- PATCH | Access token | Retrieve and update user's parcel
