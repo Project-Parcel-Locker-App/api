@@ -29,10 +29,12 @@ CREATE TABLE users (
 CREATE TABLE parcels (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   sending_code VARCHAR(6),
-  delivery_code VARCHAR(6),
+  pickup_code VARCHAR(6),
   parcel_weight DECIMAL(10, 2),
   special_instructions TEXT,
   parcel_size VARCHAR(2) NOT NULL CHECK (UPPER(parcel_size) IN ('S', 'M', 'L', 'XL')),
+  -- destination_locker_id INT NOT NULL,
+  -- destination_cabinet_id INT NOT NULL REFERENCES cabinets(id) ON DELETE CASCADE ON UPDATE CASCADE,
   sender_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   driver_id UUID REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
