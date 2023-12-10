@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import jwt, { Secret } from 'jsonwebtoken';
+import { User } from '../schemas/user.js';
 
 const signTokens = (payload: User) => {
 	const accessToken = jwt.sign(
@@ -15,8 +16,8 @@ const signTokens = (payload: User) => {
 	return { accessToken, refreshToken };
 };
 
-const verifyToken = (token: string, secret: Secret): User => {
-	const decoded: User = jwt.verify(token, secret);
+const verifyToken = (token: string, secret: Secret) => {
+	const decoded = jwt.verify(token, secret);
 	return decoded;
 }
 
