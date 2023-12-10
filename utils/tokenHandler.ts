@@ -2,7 +2,7 @@ import 'dotenv/config';
 import jwt, { Secret } from 'jsonwebtoken';
 import { User } from '../schemas/user.js';
 
-const signTokens = (payload: User) => {
+const signTokens = (payload: Partial<User>) => {
 	const accessToken = jwt.sign(
 		payload,
 		process.env.ACCESS_TOKEN_SECRET as Secret,
