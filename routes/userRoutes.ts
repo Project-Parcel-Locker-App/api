@@ -2,24 +2,26 @@ import { getNearestLockers } from 'controllers/lockerController.js';
 import express from 'express';
 import { createParcel, updateParcel } from '../controllers/parcelController.js';
 import {
-	deleteUserById,
-	getUserInfo,
-	getUserParcelInfo,
-	getUserParcels,
-	updateUserById,
+	deleteUserInfo,
+	updateUserInfo,
+	userInfo,
+	userParcelInfo,
+	userParcels,
 } from '../controllers/userController.js';
 
 const userRouter = express.Router();
 
 userRouter
 	.route('/:id')
-	.get(getUserInfo)
-	.patch(updateUserById)
-	.delete(deleteUserById);
+	.get(userInfo)
+	.patch(updateUserInfo)
+	.delete(deleteUserInfo);
 userRouter.route('/:id/parcels')
-	.get(getUserParcels)
+	.get(userParcels)
 	.post(createParcel);
-userRouter.get('/:id/parcels/:parcelId', getUserParcelInfo);
+userRouter.route('/:id/parcels/:parcelId')
+	.get(userParcelInfo)
+	.patch(updateParcel);
 userRouter.get('/:id/nearby-lockers', getNearestLockers);
 
 export { userRouter };
