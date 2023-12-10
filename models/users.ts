@@ -3,12 +3,13 @@ import { User } from '../schemas/user.js';
 import { pool } from '../utils/dbConnect.js';
 import { getCoordinates } from '../utils/geolocation.js';
 
-const createUser = async (user: User): Promise<string | undefined> => {
-	const { lat, lon }: { lat: number | undefined, lon: number | undefined } = await getCoordinates(
-		user.address.street,
-		user.address.zip_code,
-		user.address.city,
-	);
+const create = async (user: User): Promise<string | undefined> => {
+	const { lat, lon }: { lat: number | undefined; lon: number | undefined } =
+		await getCoordinates(
+			user.address.street,
+			user.address.zip_code,
+			user.address.city,
+		);
 
 	if (!lat || !lon) {
 		return 'Coordinates not found';
@@ -43,37 +44,42 @@ const createUser = async (user: User): Promise<string | undefined> => {
 	return newUser || undefined;
 };
 
-const getUserById = async (userId: string): Promise<User | undefined> => {
+const getById = async (userId: string): Promise<User | undefined> => {
 	const query =
 		'SELECT id, first_name, last_name, email, phone_number, user_role, (SELECT row_to_json(locations) FROM locations WHERE locations.id = users.location_id) AS address, updated_at, created_at FROM users WHERE users.id = $1';
 	const result: QueryResult<User> = await pool.query(query, [userId]);
 	return result.rows[0] || undefined;
 };
 
-const getUserIdByEmail = async (email: string): Promise<string | null> => {
+const getIdByEmail = async (email: string): Promise<string | null> => {
 	const query = 'SELECT id FROM users WHERE email = $1';
 	const result: QueryResult<User> = await pool.query(query, [email]);
 	return result.rows[0]?.id || null;
 };
 
-const updateUser = async (user: User): Promise<User | null> => {
+const getRefreshTokenById = async (userId: string): Promise<string | null> => {
+	const query = 'SELECT refresh_token FROM users WHERE id = $1';
+	const result: QueryResult<User> = await pool.query(query, [userId]);
+	return result.rows[0]?.refresh_token || null;
+};
+
+const updateById = async (user: Partial<User>): Promise<User | null> => {
 	const query =
-		'UPDATE users SET first_name = $1, last_name = $2, email = $3, phone_number = $4, password_hash = $5, location_id = $6 WHERE id = $7 RETURNING *';
+		'UPDATE users SET first_name = $1, last_name = $2, email = $3, phone_number = $4, password_hash = $5 WHERE id = $7 RETURNING *';
 	const result: QueryResult<User> = await pool.query(query, [
 		user.first_name,
 		user.last_name,
 		user.email,
 		user.phone_number,
 		user.password_hash,
-		user.address.id,
 		user.id,
 	]);
 	return result.rows[0] || null;
 };
 
-const updateRefreshToken = async (
+const updateRefreshTokenById = async (
 	userId: string | undefined,
-	refreshToken: string
+	refreshToken: string,
 ): Promise<User | null> => {
 	const query = 'UPDATE users SET refresh_token = $1 WHERE id = $2';
 	const result: QueryResult<User> = await pool.query(query, [
@@ -81,19 +87,20 @@ const updateRefreshToken = async (
 		userId,
 	]);
 	return result.rows[0] || null;
-}
+};
 
-const deleteUser = async (userId: string): Promise<User | null> => {
+const deleteById = async (userId: string): Promise<User | null> => {
 	const query = 'DELETE FROM users WHERE id = $1 RETURNING *';
 	const result: QueryResult<User> = await pool.query(query, [userId]);
 	return result.rows[0] || null;
 };
 
 export const userModel = {
-	getUserById,
-	getUserIdByEmail,
-	createUser,
-	updateUser,
-	updateRefreshToken,
-	deleteUser,
+	create,
+	getById,
+	getIdByEmail,
+	getRefreshTokenById,
+	updateById,
+	updateRefreshTokenById,
+	deleteById,
 };
