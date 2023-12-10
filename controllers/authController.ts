@@ -30,7 +30,7 @@ const register = async (req: Request, res: Response) => {
 	}
 
 	try {
-		const existingUser = await userModel.getUserIdByEmail(newUser.email);
+		const existingUser = await userModel.getIdByEmail(newUser.email);
 		if (existingUser) {
 			return res.status(409).json({ message: 'User already exists' });
 		}
@@ -41,7 +41,7 @@ const register = async (req: Request, res: Response) => {
 		password = null;
 
 		newUser.password_hash = hashedPassword;
-		const userId = await userModel.createUser(newUser);
+		const userId = await userModel.create(newUser);
 
 		if (userId === 'Coordinates not found') {
 			return res.status(400).json({ message: 'Address not found or it has invalid format' });
@@ -49,11 +49,11 @@ const register = async (req: Request, res: Response) => {
 
 		// Generate tokens
 		const { accessToken, refreshToken } = signTokens({
-			_id: userId,
+			id: userId,
 			user_role: newUser.user_role,
 		});
 
-		await userModel.updateRefreshToken(userId, refreshToken);
+		await userModel.updateRefreshTokenById(userId, refreshToken);
 
 		return res
 			.status(201)
@@ -83,7 +83,7 @@ const refreshToken = async (req: Request, res: Response) => {
 	const user = (req as CustomRequest).user as User;
 
 	const { accessToken } = signTokens({
-		_id: user.id,
+		id: user.id,
 		user_role: user.user_role,
 	});
 
@@ -114,7 +114,7 @@ const login = async (req: Request, res: Response) => {
 
 		// Generate tokens
 		const { accessToken, refreshToken } = signTokens({
-			_id: user.id,
+			id: user.id,
 			user_role: user.user_role,
 		});
 

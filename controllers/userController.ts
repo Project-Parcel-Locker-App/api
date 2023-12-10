@@ -1,15 +1,15 @@
+import { hash } from 'bcrypt';
 import 'dotenv/config';
 import { Request, Response } from 'express';
 import { parcelModel } from 'models/parcels.js';
-import { User } from 'schemas/user.js';
-import { pool } from '../utils/dbConnect.js';
 import { userModel } from 'models/users.js';
+import { User } from 'schemas/user.js';
 
-const getUserInfo = async (req: Request, res: Response) => {
+const userInfo = async (req: Request, res: Response) => {
 	const userId = req.params.id;
 
 	try {
-		const user = await userModel.getUserById(userId);
+		const user = await userModel.getById(userId);
 		if (!user) {
 			return res.status(404).json({ message: 'User not found' });
 		}
@@ -17,72 +17,24 @@ const getUserInfo = async (req: Request, res: Response) => {
 	} catch (err) {
 		console.error(err);
 		return res.status(500).json({
-			message: 'Task failed successfully',
-			error: 'Internal server error',
-			suggestion: 'Please try again later',
+			message: 'Error getting user information',
 		});
 	}
 };
 
-const updateUserById = async (req: Request, res: Response) => {
+const userParcels = async (req: Request, res: Response) => {
 	const userId = req.params.id;
-	const { firstName, lastName, email, phoneNumber } = req.body;
 
 	try {
-		const userQuery =
-			'UPDATE users SET first_name = $1, last_name = $2, email = $3, phone_number = $4 WHERE id = $5 RETURNING *';
-		const userResult = await pool.query(userQuery, [
-			firstName,
-			lastName,
-			email,
-			phoneNumber,
-			userId,
-		]);
-
-		if (userResult.rows.length === 0) {
-			return res.status(404).json({ message: 'User not found' });
+		const userRole = await userModel.getById(userId);
+		if (userRole?.user_role === 'driver') {
+			const userParcels = await parcelModel.getParcelsByDriverId(userId);
+			if (userParcels.length === 0) {
+				return res.status(404).json({ message: 'No parcels found' });
+			}
+			return res.status(200).json(userParcels);
 		}
-
-		const user: User = userResult.rows[0];
-		return res.status(200).json(user);
-	} catch (err) {
-		console.error(err);
-		return res.status(500).json({
-			message: 'Task failed successfully',
-			error: 'Internal server error',
-			suggestion: 'Please try again later',
-		});
-	}
-};
-
-const deleteUserById = async (req: Request, res: Response) => {
-	const userId = req.params.id;
-
-	try {
-		const userQuery = 'DELETE FROM users WHERE id = $1 RETURNING *';
-		const userResult = await pool.query(userQuery, [userId]);
-
-		if (userResult.rows.length === 0) {
-			return res.status(404).json({ message: 'User not found' });
-		}
-
-		const user: User = userResult.rows[0];
-		return res.status(200).json({ message: `User ${user.id} deleted` });
-	} catch (err) {
-		console.error(err);
-		return res.status(500).json({
-			message: 'Task failed successfully',
-			error: 'Internal server error',
-			suggestion: 'Please try again later',
-		});
-	}
-};
-
-const getUserParcels = async (req: Request, res: Response) => {
-	const userId = req.params.id;
-
-	try {
-		const userParcels = await parcelModel.getParcelsbyUserId(userId);
+		const userParcels = await parcelModel.getParcelsByUserId(userId);
 		if (userParcels.length === 0) {
 			return res.status(404).json({ message: 'No parcels found' });
 		}
@@ -90,14 +42,12 @@ const getUserParcels = async (req: Request, res: Response) => {
 	} catch (err) {
 		console.error(err);
 		return res.status(500).json({
-			message: 'Task failed successfully',
-			error: 'Internal server error',
-			suggestion: 'Please try again later',
+			message: 'Error getting user parcels',
 		});
 	}
 };
 
-const getUserParcelInfo = async (req: Request, res: Response) => {
+const userParcelInfo = async (req: Request, res: Response) => {
 	const userId = req.params.id;
 	const parcelId = req.params.parcelId;
 
@@ -110,17 +60,62 @@ const getUserParcelInfo = async (req: Request, res: Response) => {
 	} catch (err) {
 		console.error(err);
 		return res.status(500).json({
-			message: 'Task failed successfully',
-			error: 'Internal server error',
-			suggestion: 'Please try again later',
+			message: 'Error getting user parcel information',
 		});
 	}
-}
+};
+
+const updateUserInfo = async (req: Request, res: Response) => {
+	const user: Partial<User> = {
+		id: req.params.id,
+		first_name: req.body.firstName,
+		last_name: req.body.lastName,
+		email: req.body.email,
+		phone_number: req.body.phoneNumber,
+	};
+
+	try {
+		if (req.body.password) {
+			const password = req.body.password;
+			const passwordHash = await hash(password, 12);
+			user.password_hash = passwordHash;
+		}
+		const updatedUser = await userModel.updateById(user);
+		if (!updatedUser) {
+			return res.status(404).json({ message: 'User not found' });
+		}
+		return res.status(200).json(updatedUser);
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({
+			message: 'Error updating user information',
+		});
+	}
+};
+
+const deleteUserInfo = async (req: Request, res: Response) => {
+	const userId = req.params.id;
+
+	try {
+		const deletedUser = await userModel.deleteById(userId);
+		if (!deletedUser) {
+			return res.status(404).json({ message: 'User not found' });
+		}
+		return res.status(200).json({
+			message: `User ${deletedUser?.first_name} ${deletedUser?.last_name} with id ${userId} deleted`,
+		});
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({
+			message: 'Error deleting user',
+		});
+	}
+};
 
 export {
-	getUserInfo,
-	updateUserById,
-	deleteUserById,
-	getUserParcels,
-	getUserParcelInfo,
+	userInfo,
+	userParcels,
+	userParcelInfo,
+	updateUserInfo,
+	deleteUserInfo,
 };
