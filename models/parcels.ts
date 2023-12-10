@@ -2,7 +2,7 @@ import { QueryResult } from 'pg';
 import { Parcel } from '../schemas/parcel.js';
 import { pool } from '../utils/dbConnect.js';
 
-const createParcel = async (
+const create = async (
 	parcel: Parcel,
 	senderId: string,
 	recipientId: string | null,
@@ -46,7 +46,7 @@ const getParcelById = async (
 	return result.rows[0] || null;
 };
 
-const getParcelsbyUserId = async (userId: string): Promise<Parcel[] | []> => {
+const getParcelsByUserId = async (userId: string): Promise<Parcel[] | []> => {
 	const query = `
 		SELECT 
 			parcels.id, parcels.sending_code, parcels.parcel_weight, parcels.special_instructions, parcels.parcel_size,
@@ -61,12 +61,24 @@ const getParcelsbyUserId = async (userId: string): Promise<Parcel[] | []> => {
 	return result.rows || [];
 };
 
+const getParcelsByDriverId = async (
+	driverId: string,
+): Promise<Parcel[] | []> => {
+	const query = `
+		SELECT id, parcel_weight, special_instructions, parcel_size, parcel_status
+		FROM parcels
+		WHERE driver_id = $1 AND parcel_status = 'in-transit'`;
+	const result: QueryResult<Parcel> = await pool.query(query, [driverId]);
+	return result.rows || [];
+};
+
 const updateParcelById = async (
 	userId: string,
 	parcelId: string,
 	parcel: Partial<Parcel>,
 ): Promise<Parcel | null> => {
-	const query = 'UPDATE parcels SET parcel_status = $1, driver_id = $2, pickup_code = $3, ready_for_pickup_at = $4 WHERE id = $5 AND (sender_id = $6 OR recipient_id = $6) RETURNING *';
+	const query =
+		'UPDATE parcels SET parcel_status = $1, driver_id = $2, pickup_code = $3, ready_for_pickup_at = $4 WHERE id = $5 AND (sender_id = $6 OR recipient_id = $6) RETURNING *';
 	const result: QueryResult<Parcel> = await pool.query(query, [
 		parcel.parcel_status,
 		parcel.driver_id || null,
@@ -86,8 +98,9 @@ const deleteParcelById = async (parcelId: number): Promise<Parcel | null> => {
 
 export const parcelModel = {
 	getParcelById,
-	getParcelsbyUserId,
-	createParcel,
+	getParcelsByUserId,
+	getParcelsByDriverId,
+	create,
 	updateParcelById,
 	deleteParcelById,
 };
