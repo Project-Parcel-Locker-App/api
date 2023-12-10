@@ -1,14 +1,16 @@
 import { Router } from 'express';
 import {
-	assignCabinet,
+	getAllLockers,
+	getCabinetById,
+	getCabinetsByLockerId,
 	getLockerById,
-	getNearestLocker,
 } from '../controllers/lockerController.js';
 
 const lockerRouter = Router();
 
-lockerRouter.get('/:id', getLockerById)
-lockerRouter.get('/nearest/:userId', getNearestLocker);
-lockerRouter.patch('/:id/assign', assignCabinet);
+lockerRouter.get('/', getAllLockers);
+lockerRouter.get('/:id/', getLockerById);
+lockerRouter.get('/:id/cabinets', getCabinetsByLockerId);
+lockerRouter.get('/:id/cabinets/:cabinetId', getCabinetById);
 
 export { lockerRouter };

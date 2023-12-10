@@ -1,72 +1,69 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { NextFunction, Request, Response } from 'express';
-import jwt, { Secret, VerifyErrors } from 'jsonwebtoken';
-import { User } from '../schemas/user.js';
+import { Secret, VerifyErrors } from 'jsonwebtoken';
+// import { userModel } from 'models/users.js';
+// import { User } from '../schemas/user.js';
+import { pool } from '../utils/dbConnect.js';
+import { verifyToken } from '../utils/tokenHandler.js';
 
-dotenv.config();
-
-// Makes TypeScript aware of the user object on the request object
-declare global {
-	namespace Express {
-		interface Request {
-			user?: User;
-		}
-	}
+// Makes TypeScript aware of the user object in the request object
+export interface CustomRequest extends Request {
+	user?: User;
 }
 
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 	const accessToken = req.headers.authorization?.split(' ')[1];
-
 	if (!accessToken) {
 		return res.status(401).json({ message: 'Unauthorized: No token provided' });
 	}
 
-	jwt.verify(
-		accessToken,
-		process.env.ACCESS_TOKEN_SECRET as Secret,
-		(err: VerifyErrors | null) => {
-			if (err) {
-				if (err.name === 'TokenExpiredError') {
-					return res
-						.status(401)
-						.json({ message: 'Unauthorized: Token has expired' });
-				}
-				return res.status(403).json({ message: 'Forbidden access' });
-			}
-			next();
-		},
-	);
+	try {
+		// Verify access token
+		const decoded = verifyToken(accessToken, process.env.ACCESS_TOKEN_SECRET as Secret);
+		(req as CustomRequest).user = decoded;
+		return next();
+	} catch (err: VerifyErrors) {
+		console.error(err);
+		if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+			return res
+				.status(401)
+				.json({ message: 'Unauthorized: Token is invalid or has expired' });
+		}
+		return res.status(403).json({ message: 'Forbidden access' });
+	}
 };
 
-const authenticateRefreshToken = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
-	const refreshToken: string | undefined = req.cookies._refresh_token_;
-
+const authenticateRefreshToken = async (req: Request,	res: Response, next: NextFunction) => {
+	const refreshToken = req.headers.authorization?.split(' ')[1];
+	// const refreshToken: string | undefined = req.cookies._refresh_token_;
 	if (!refreshToken) {
 		return res.status(401).json({ message: 'Unauthorized: No token provided' });
 	}
 
-	jwt.verify(
-		refreshToken,
-		process.env.REFRESH_TOKEN_SECRET as Secret,
-		(err: VerifyErrors | null, user: User | undefined) => {
-			if (err) {
-				if (err.name === 'TokenExpiredError') {
-					return res
-						.status(401)
-						.json({ message: 'Unauthorized: Token has expired' });
-				}
-				return res.status(403).json({ message: 'Forbidden access' });
-			}
-			if (user) {
-				req.user = user;
-			}
-			next();
-		},
-	);
+	try {
+		// Verify refresh token
+		const decoded = verifyToken(refreshToken, process.env.REFRESH_TOKEN_SECRET as Secret);
+		(req as CustomRequest).user = decoded;
+
+		// Verify refresh token is stored in database and belongs to user
+		const userQuery = 'SELECT id FROM users WHERE refresh_token = $1';
+		const userResult = await pool.query(userQuery, [refreshToken]);
+		if (!userResult.rows[0].id) {
+			return res
+				.status(403)
+				.json({ message: 'Forbidden access' });
+		}
+
+		return next();
+	} catch (err: VerifyErrors) {
+		console.error(err);
+		if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+			return res
+				.status(401)
+				.json({ message: 'Unauthorized: Token is invalid or has expired' });
+		}
+		return res.status(403).json({ message: 'Forbidden access' });
+	}
 };
 
 export { authenticateToken, authenticateRefreshToken };

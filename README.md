@@ -1,8 +1,48 @@
 # PulssiPosti Backend API
 
-## Start working
-Clone the project and install depencies
-`npm install`
+### Prerequisites
+
+- Node.js ^18
+- PostgreSQL ^15 (if any other relational database is used, change the db.sql file accordingly)
+
+### Start working
+To use this API locally, follow these steps:
+
+1. Clone the repository and move into the project's directory: 
+```sh
+  git clone https://github.com/Project-Parcel-Locker-App/api
+  cd api/
+```
+2. Install the dependencies:
+ ```sh
+  npm install
+```
+4. Rename the **sample.env** file to **.env**, then replace variable placeholders with the correct values for your application.
+
+5. Run the dev server:
+ ```sh
+  npm run dev
+```
+
+## API Endpoints
+The base URL for all endpoints is: `https://localhost:PORT/api/`
+
+| Endpoint | Method | Auth | Description |
+| -------- | ------ | -----| -------- |
+| /auth/register | POST | No (auth origins) | Register a new user
+| /auth/login | POST | No (auth origins) | Login using email and password
+| /auth/logout | POST | Access token | Logout user (remove cookie)
+| /auth/token/refresh | POST | Refresh token | Obtain a new access token
+| /users/userID | GET - PATCH - DELETE | Access token | Retrieve, update and delete a user
+| /users/userID/parcels | GET - POST | Access token | Retrieve and create user's parcels
+| /users/userID/parcels/parcelID | GET- PATCH | Access token | Retrieve and update user's parcel
+| /users/userID/nearby-lockers | GET | Access token | Retrieve lockers information near a given user
+| /lockers | GET | No (auth origins)| Retrieve lockers' information
+| /lockers/lockerID | GET | No (auth origins) | Retrieve detailed information about a locker
+| /lockers/lockerID/cabinets | GET - POST | Access token | Retrieve and create cabinets' information
+| /lockers/lockerID/cabinets/cabinetID | GET - PATCH | Access token | Retrieve and update cabinet's information
+
+
 
 ```
 API ENDPOINTS designed by Tomoko
