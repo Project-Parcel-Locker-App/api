@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { CustomRequest } from 'middleware/authorization.js';
 import { parcelModel } from 'models/parcels.js';
 import { userModel } from '../models/users.js';
 import { Parcel } from '../schemas/parcel.js';
@@ -14,10 +13,10 @@ const createParcel = async (req: Request, res: Response) => {
 		if (!validation.success) {
 			return res.status(400).json({ message: validation.error });
 		}
-		const recipientId = await userModel.getUserIdByEmail(recipientEmail);
+		const recipientId = await userModel.getIdByEmail(recipientEmail);
 		// Generate sending code ######
 		parcel.sending_code = Math.floor(Math.random() * 1000000);
-		parcelModel.createParcel(parcel, userId, recipientId);
+		parcelModel.create(parcel, userId, recipientId);
 		return res.status(201).json({ message: 'Parcel created' });
 	} catch (error) {
 		console.error(error);
@@ -32,12 +31,6 @@ const getParcelInfo = async (req: Request, res: Response) => {
 		const parcel = parcelModel.getParcelById(userId, parcelId);
 		if (!parcel) {
 			return res.status(404).json({ message: 'Parcel not found' });
-		}
-		if ((req as CustomRequest).user.user_role !== 'admin') {
-			return res.status(403).json({
-				message: 'Forbidden',
-				error: 'You are not allowed to access this resource',
-			});
 		}
 		return res.status(200).json(parcel);
 	} catch (error) {
