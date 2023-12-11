@@ -1,4 +1,5 @@
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import 'dotenv/config';
 import express, { Application } from 'express';
 import { ACCEPTED_ORIGINS } from './configs/corsOrigins.js';
@@ -14,7 +15,8 @@ if (process.env.NODE_ENV === 'dev') {
 
 app.disable('x-powered-by');
 app.use([
-	corsMiddleware(ACCEPTED_ORIGINS, true),
+	// corsMiddleware(ACCEPTED_ORIGINS, true),
+	cors(),
 	cookieParser(),
 	express.json(),
 	express.urlencoded({ extended: false }),
