@@ -34,6 +34,8 @@ const findCabinetsByLockerId = async (lockerId: number) => {
         WHEN p.id IS NOT NULL THEN
           jsonb_build_object(
             'id', p.id,
+            'sender_id', p.sender_id,
+            'recipient_id', p.recipient_id,
             'weight', p.parcel_weight,
             'special_instructions', p.special_instructions,
             'size', p.parcel_size,
