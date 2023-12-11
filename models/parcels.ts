@@ -21,25 +21,37 @@ const create = async (
 	return result.rows[0] || null;
 };
 
-const getParcelById = async (
-	parcelId: string,
+const getBySendingCode = async (
+	sendingCode: string,
 ): Promise<Parcel | null> => {
+	const query = 'SELECT id from parcels WHERE sending_code = $1';
+	const result: QueryResult<Parcel> = await pool.query(query, [sendingCode]);
+	
+	return result.rows[0] || null;
+};
+
+const getByPickupCode = async (pickupCode: string): Promise<Parcel | null> => {
+	const query = 'SELECT id from parcels WHERE pickup_code = $1'
+	const result: QueryResult<Parcel> = await pool.query(query, [pickupCode]);
+
+	return result.rows[0] || null;
+};
+
+const getParcelById = async (parcelId: string): Promise<Parcel | null> => {
 	const query = `
 		SELECT 
 			parcels.id, sending_code parcel_weight, special_instructions, parcel_size, CONCAT(sender.first_name,' ',sender.last_name) AS sender_full_name, CONCAT(recipient.first_name,' ',recipient.last_name) AS recipient_full_name, parcel_status, ready_for_pickup_at, parcels.updated_at, parcels.created_at,
 			CASE
 				WHEN cabinets.parcel_id IS NOT NULL THEN row_to_json(locations)
 				ELSE NULL
-			END AS location
+			END AS locker
 		FROM parcels 
 		LEFT JOIN users AS sender ON parcels.sender_id = sender.id 
 		LEFT JOIN users AS recipient ON parcels.recipient_id = recipient.id 
 		LEFT JOIN cabinets ON parcels.id = cabinets.parcel_id
 		LEFT JOIN locations ON cabinets.location_id = locations.id
 		WHERE parcels.id = $1`;
-	const result: QueryResult<Parcel> = await pool.query(query, [
-		parcelId
-	]);
+	const result: QueryResult<Parcel> = await pool.query(query, [parcelId]);
 
 	return result.rows[0] || null;
 };
@@ -88,13 +100,33 @@ const updateParcelById = async (
 	return result.rows[0] || null;
 };
 
-const deleteParcelById = async (parcelId: number): Promise<Parcel | null> => {
+const deleteParcelById = async (parcelId: string): Promise<Parcel | null> => {
 	const query = 'DELETE FROM parcels WHERE id = $1 RETURNING *';
 	const result: QueryResult<Parcel> = await pool.query(query, [parcelId]);
 	return result.rows[0] || null;
 };
 
+const getAllParcels = async (): Promise<Parcel[] | []> => {
+	const query = `
+		SELECT 
+			parcels.id, sending_code parcel_weight, special_instructions, parcel_size, CONCAT(sender.first_name,' ',sender.last_name) AS sender_full_name, CONCAT(recipient.first_name,' ',recipient.last_name) AS recipient_full_name, parcel_status, ready_for_pickup_at, parcels.updated_at, parcels.created_at,
+			CASE
+				WHEN cabinets.parcel_id IS NOT NULL THEN row_to_json(locations)
+				ELSE NULL
+			END AS location
+		FROM parcels 
+		LEFT JOIN users AS sender ON parcels.sender_id = sender.id 
+		LEFT JOIN users AS recipient ON parcels.recipient_id = recipient.id 
+		LEFT JOIN cabinets ON parcels.id = cabinets.parcel_id
+		LEFT JOIN locations ON cabinets.location_id = locations.id`;
+	const result: QueryResult<Parcel> = await pool.query(query);
+	return result.rows || [];
+};
+
 export const parcelModel = {
+	getAllParcels,
+	getBySendingCode,
+	getByPickupCode,
 	getParcelById,
 	getParcelsByUserId,
 	getParcelsByDriverId,
