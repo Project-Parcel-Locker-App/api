@@ -2,8 +2,8 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import 'dotenv/config';
 import express, { Application } from 'express';
-import { ACCEPTED_ORIGINS } from './configs/corsOrigins.js';
-import { corsMiddleware } from './middleware/cors.js';
+// import { ACCEPTED_ORIGINS } from './configs/corsOrigins.js';
+// import { corsMiddleware } from './middleware/cors.js';
 import { appRouter } from './routes/appRouter.js';
 
 const app: Application = express();
