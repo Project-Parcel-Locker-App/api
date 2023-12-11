@@ -1,6 +1,6 @@
 import z from 'zod';
 
-const parcelSchema = z.object({
+export const parcelSchema = z.object({
 	id: z.string().uuid(),
 	sending_code: z.number().positive(),
 	pickup_code: z.number().positive(),
@@ -12,8 +12,8 @@ const parcelSchema = z.object({
 	driver_id: z.string().uuid(),
 	parcel_status: z.string().nullable(),
 	ready_for_pickup_at: z.union([z.string(), z.coerce.date(), z.null()]),
-	updated_at: z.coerce.date(),
-	created_at: z.coerce.date(),
+	updated_at: z.union([z.string(), z.coerce.date(), z.null()]),
+	created_at: z.union([z.string(), z.coerce.date(), z.null()]),
 });
 
 export type Parcel = z.infer<typeof parcelSchema>;

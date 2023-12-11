@@ -1,9 +1,9 @@
 import { hash } from 'bcrypt';
 import 'dotenv/config';
 import { Request, Response } from 'express';
-import { parcelModel } from 'models/parcels.js';
-import { userModel } from 'models/users.js';
-import { User } from 'schemas/user.js';
+import { parcelModel } from '../models/parcels.js';
+import { userModel } from '../models/users.js';
+import { User } from '../schemas/user.js';
 
 const userInfo = async (req: Request, res: Response) => {
 	const userId = req.params.id;
@@ -52,7 +52,11 @@ const userParcelInfo = async (req: Request, res: Response) => {
 	const parcelId = req.params.parcelId;
 
 	try {
-		const userParcel = await parcelModel.getParcelById(parcelId, userId);
+		const userExists = await userModel.getById(userId);
+		if (!userExists) {
+			return res.status(404).json({ message: 'User not found' });
+		}
+		const userParcel = await parcelModel.getParcelById(parcelId);
 		if (!userParcel) {
 			return res.status(404).json({ message: 'Parcel not found' });
 		}

@@ -1,11 +1,27 @@
-# PulssiPosti Backend API
+# PulssiPosti API
 
-### Prerequisites
+This API provides various endpoints to facilitate user registration, authentication, parcel management, locker information retrieval, and more for the PulssiPosti applications. Below is a comprehensive list of the available endpoints along with their methods, authentication requirements, and brief descriptions.
 
-- Node.js ^18
-- PostgreSQL ^15 (if any other relational database is used, change the db.sql file accordingly)
+## Table of Contents
 
-### Start working
+- [Introduction](#introduction)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Documentation](#api-documentation)
+
+## Requirements
+
+To run and develop this API, ensure that you have the following previously installed:
+
+- **Node.js:** Version 20. You can download it [here](https://nodejs.org/), or using you prefered node version manager.
+  - _Note_: The API has been developed and tested with Node.js version 20, but it should work with version 18 as well.
+
+- **PostgreSQL:** Version 15^. This API relies on PostgreSQL as its relational database.
+  - _Note_: Make sure to set up a PostgreSQL database and update the connection details in the .env file. You can use the provided .env.example as a template.
+
+## Installation
 To use this API locally, follow these steps:
 
 1. Clone the repository and move into the project's directory: 
@@ -17,15 +33,19 @@ To use this API locally, follow these steps:
  ```sh
   npm install
 ```
-4. Rename the **sample.env** file to **.env**, then replace variable placeholders with the correct values for your application.
+4. Rename the **example.env** file to **.env**, then replace variable placeholders with the correct values for your application.
 
 5. Run the dev server:
  ```sh
   npm run dev
 ```
 
-## API Endpoints
-The base URL for all endpoints is: `https://localhost:PORT/api/`
+## Usage
+
+....
+
+## API Documentation
+The base URL for all endpoints is: `https://localhost:YOUR_PORT/api`
 
 | Endpoint | Method | Auth | Description |
 | -------- | ------ | -----| -------- |

@@ -23,7 +23,6 @@ const create = async (
 
 const getParcelById = async (
 	parcelId: string,
-	userId: string,
 ): Promise<Parcel | null> => {
 	const query = `
 		SELECT 
@@ -37,10 +36,9 @@ const getParcelById = async (
 		LEFT JOIN users AS recipient ON parcels.recipient_id = recipient.id 
 		LEFT JOIN cabinets ON parcels.id = cabinets.parcel_id
 		LEFT JOIN locations ON cabinets.location_id = locations.id
-		WHERE parcels.id = $1 AND (parcels.recipient_id = $2 OR parcels.sender_id = $2)`;
+		WHERE parcels.id = $1`;
 	const result: QueryResult<Parcel> = await pool.query(query, [
-		parcelId,
-		userId,
+		parcelId
 	]);
 
 	return result.rows[0] || null;

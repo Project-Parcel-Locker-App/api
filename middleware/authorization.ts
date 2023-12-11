@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { NextFunction, Request, Response } from 'express';
 import { Secret } from 'jsonwebtoken';
-import { userModel } from 'models/users.js';
+import { userModel } from '../models/users.js';
 import { User } from '../schemas/user.js';
 import { verifyToken } from '../utils/tokenHandler.js';
 
@@ -18,13 +18,15 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 
 	try {
 		const decoded = verifyToken(accessToken, process.env.ACCESS_TOKEN_SECRET as Secret);
-		if (!decoded) {
-			return res.status(401).json({ message: 'Unauthorized: Token is invalid or has expired' });
-		}
 		(req as CustomRequest).user = decoded as User;
 		return next();
 	} catch (err) {
 		console.error(err);
+		if (err instanceof Error && err.message === 'jwt expired' || err instanceof Error && err.message === 'invalid token') {
+			return res
+				.status(401)
+				.json({ message: 'Unauthorized: Token is invalid or has expired' });
+		}
 		return res.status(403).json({ message: 'Forbidden access' });
 	}
 };
@@ -38,9 +40,6 @@ const authenticateRefreshToken = async (req: Request,	res: Response, next: NextF
 
 	try {
 		const decoded = verifyToken(refreshToken, process.env.REFRESH_TOKEN_SECRET as Secret);
-		if (!decoded) {
-			return res.status(401).json({ message: 'Unauthorized: Token is invalid or has expired' });
-		}
 		const userId = (decoded as User).id;
 		const userRefreshToken = await userModel.getRefreshTokenById((userId as string));
 		if (!userRefreshToken || userRefreshToken !== refreshToken) {
@@ -50,7 +49,11 @@ const authenticateRefreshToken = async (req: Request,	res: Response, next: NextF
 		return next();
 	} catch (err) {
 		console.error(err)
-		return res.status(403).json({ message: 'Forbidden access' });
+		if (err instanceof Error && err.message === 'jwt expired' || err instanceof Error && err.message === 'invalid token') {
+			return res
+				.status(401)
+				.json({ message: 'Unauthorized: Token is invalid or has expired' });
+		}
 	}
 };
 

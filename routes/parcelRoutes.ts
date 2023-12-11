@@ -1,7 +1,7 @@
-import express from 'express';
-// import { parcelController } from '../controllers/parcelController.js';
+// import express from 'express';
+// // import { parcelController } from '../controllers/parcelController.js';
 
-const parcelRouter = express.Router();
+// const parcelRouter = express.Router();
 
 // parcelRouter
 // 	.route('/')
@@ -26,4 +26,4 @@ lockers/:lockerId/cabinets/:cabinetId/parcels
 lockers/:lockerId/parcels add and get parcels
 */
 
-export { parcelRouter };
+// export { parcelRouter };

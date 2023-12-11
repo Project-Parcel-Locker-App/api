@@ -1,4 +1,4 @@
-import { getNearestLockers } from 'controllers/lockerController.js';
+import { getNearestLockers } from '../controllers/lockerController.js';
 import express from 'express';
 import { createParcel, updateParcel } from '../controllers/parcelController.js';
 import {
