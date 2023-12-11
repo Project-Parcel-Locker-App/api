@@ -1,16 +1,19 @@
 import { Router } from 'express';
 import {
+	getAllCabinets,
 	getAllLockers,
 	getCabinetById,
-	getCabinetsByLockerId,
-	getLockerById,
+	getLocker,
+	updateCabinet,
 } from '../controllers/lockerController.js';
 
 const lockerRouter = Router();
 
 lockerRouter.get('/', getAllLockers);
-lockerRouter.get('/:id/', getLockerById);
-lockerRouter.get('/:id/cabinets', getCabinetsByLockerId);
-lockerRouter.get('/:id/cabinets/:cabinetId', getCabinetById);
+lockerRouter.get('/:id/', getLocker);
+lockerRouter.get('/:id/cabinets', getAllCabinets);
+lockerRouter.route('/:id/cabinets/:cabinetId')
+	.get(getCabinetById)
+	.patch(updateCabinet);
 
 export { lockerRouter };
