@@ -1,11 +1,11 @@
 import { compare, genSalt, hash } from 'bcrypt';
 import { Request, Response } from 'express';
-import { CustomRequest } from 'middleware/authorization.js';
-import { signTokens } from 'utils/tokenHandler.js';
+import { CustomRequest } from '../middleware/authorization.js';
+import { signTokens } from '../utils/tokenHandler.js';
 import { User } from '../schemas/user.js';
 import { pool } from '../utils/dbConnect.js';
-import { userModel } from 'models/users.js';
-import { validatePartialUser } from 'schemas/user.js';
+import { userModel } from '../models/users.js';
+import { validatePartialUser } from '../schemas/user.js';
 
 const register = async (req: Request, res: Response) => {
 	let { password } = req.body;
