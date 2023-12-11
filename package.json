@@ -1,7 +1,7 @@
 {
-  "name": "api",
+  "name": "pulssiposti-api",
   "version": "1.0.0",
-  "description": "PulssiPosti API...",
+  "description": "PulssiPosti API for consumer, locker and courier apps",
   "main": "app.ts",
   "scripts": {
     "dev": "tsx watch server.ts",
