@@ -22,6 +22,6 @@ app.use([
 	express.urlencoded({ extended: false }),
 ]);
 
-app.use('/pulssi-posti/api', appRouter);
+app.use('/api', appRouter);
 
 export { app };
