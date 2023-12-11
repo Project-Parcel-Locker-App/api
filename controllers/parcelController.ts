@@ -47,10 +47,10 @@ const updateParcel = async (req: Request, res: Response) => {
 		if (!validation.success) {
 			return res.status(400).json({ message: validation.error });
 		}
-    if (parcel.parcel_status === 'ready-for-pickup') {
-      parcel.pickup_code = Math.floor(Math.random() * 10000);
-      parcel.ready_for_pickup_at = 'NOW()'
-    }
+		if (parcel.parcel_status === 'ready-for-pickup') {
+			parcel.pickup_code = Math.floor(Math.random() * 10000);
+			parcel.ready_for_pickup_at = 'NOW()';
+		}
 		const updatedParcel = await parcelModel.updateParcelById(
 			userId,
 			parcelId,
@@ -66,4 +66,18 @@ const updateParcel = async (req: Request, res: Response) => {
 	}
 };
 
-export { createParcel, getParcelInfo, updateParcel };
+const deleteParcel = async (req: Request, res: Response) => {
+	try {
+		const parcelId = req.params.parcelId;
+		const deletedParcel = await parcelModel.deleteParcelById(parcelId);
+		if (!deletedParcel) {
+			return res.status(404).json({ message: 'Parcel not found' });
+		}
+		return res.status(200).json({ message: 'Parcel deleted' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: 'Error deleting parcel' });
+	}
+};
+
+export { createParcel, getParcelInfo, updateParcel, deleteParcel };

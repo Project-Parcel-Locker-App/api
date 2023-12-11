@@ -9,7 +9,7 @@ const pool = new pg.Pool(dbConfig);
 		const client = await pool.connect();
 		console.log('Connection with the database established 🚀');
 		client.release();
-	} catch (err: any) {
+	} catch (err) {
 		throw new Error('Connecting with database failed.', { cause: err });
 	}
 })();
