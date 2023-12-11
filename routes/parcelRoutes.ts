@@ -1,12 +1,14 @@
-// import express from 'express';
-// // import { parcelController } from '../controllers/parcelController.js';
+import express from 'express';
+import { getParcelInfo, updateParcel, deleteParcel } from '../controllers/parcelController.js';
 
-// const parcelRouter = express.Router();
+const parcelRouter = express.Router();
 
-// parcelRouter
-// 	.route('/')
-// 	.get(ParcelController.getAllParcels)
-// 	.post(parcelController.createParcel);
+// parcelRouter.get('/', getAllParcels);
+parcelRouter.route('/:id')
+  .get(getParcelInfo)
+  .patch(updateParcel)
+  .delete(deleteParcel);
+
 // parcelRouter
 // 	.route('/:id')
 // 	.get(ParcelController.getParcelById)
@@ -18,12 +20,3 @@
 // 	.patch(ParcelController.updateParcelStatusById);
 // parcelRouter.(':id/pickup').patch(ParcelController.pickupParcelById);
 // parcelRouter.(':id/dropoff').patch(ParcelController.dropoffParcelById);
-
-
-
-/*
-lockers/:lockerId/cabinets/:cabinetId/parcels
-lockers/:lockerId/parcels add and get parcels
-*/
-
-// export { parcelRouter };
