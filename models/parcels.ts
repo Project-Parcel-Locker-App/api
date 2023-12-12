@@ -75,7 +75,7 @@ const getParcelsByDriverId = async (
 	driverId: string,
 ): Promise<Parcel[] | []> => {
 	const query = `
-		SELECT id, parcel_weight, special_instructions, parcel_size, parcel_status
+		SELECT id, parcel_weight, special_instructions, parcel_size, parcel_status, sender_id, recipient_id
 		FROM parcels
 		WHERE driver_id = $1 AND parcel_status = 'in-transit'`;
 	const result: QueryResult<Parcel> = await pool.query(query, [driverId]);

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getParcelInfo, updateParcel, deleteParcel } from '../controllers/parcelController.js';
+import { deleteParcel, getParcelInfo, updateParcel } from '../controllers/parcelController.js';
 
 const parcelRouter = express.Router();
 
@@ -20,3 +20,5 @@ parcelRouter.route('/:id')
 // 	.patch(ParcelController.updateParcelStatusById);
 // parcelRouter.(':id/pickup').patch(ParcelController.pickupParcelById);
 // parcelRouter.(':id/dropoff').patch(ParcelController.dropoffParcelById);
+
+export { parcelRouter };
