@@ -10,7 +10,7 @@ const appRouter = Router();
 
 appRouter.use('/auth', authRouter);
 appRouter.use('/users', authenticateToken, userRouter);
-appRouter.use('/parcels', authenticateToken, parcelRouter);
+appRouter.use('/parcels', parcelRouter);
 appRouter.use('/lockers', lockerRouter);
 appRouter.use('*', handle404Error);
 
