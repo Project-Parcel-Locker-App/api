@@ -20,7 +20,8 @@ CREATE TABLE users (
   password_hash VARCHAR(60) NOT NULL,
   refresh_token VARCHAR(255),
   phone_number VARCHAR(20),
-  user_role VARCHAR(20) CHECK (user_role IN ('consumer', 'driver', 'admin')),
+  company_name VARCHAR(100),
+  user_role VARCHAR(20) CHECK (user_role IN ('consumer', 'driver', 'company', 'admin')),
   location_id INT REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE,
   updated_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW()
