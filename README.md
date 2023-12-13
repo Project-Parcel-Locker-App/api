@@ -42,71 +42,40 @@ To use this API locally, follow these steps:
 
 ## Usage
 
-....
+| Endpoint | Minimum payload required (JSON)|
+| -------- | --------------------- |
+| /auth/register | `{ "firstName": "Klaus", "lastName": "Walker", "email": "your-email@example.com", "phoneNumber": "+358789456123", "userRole": "consumer", "street": "Isokatu 33", "zipCode": "90100", "city": "Oulu", "country": "Finland", "password": "passwordexample", "passwordConfirm": "passwordexample" }`
+| /auth/login | `{ "email": "your-email@somehost.com", "password": "password1234" }`
+| /auth/token/refresh | Refresh token in the authorization header or as cookie
+| /users/userID/parcels | `{ "parcel": { "parcel_weight": 11.5, "special_instructions": "Fragile", "parcel_size": "L" },	"recipient_email": "james.bond@consumer.com" }`
+| /parcels/parcelID | `{ "parcel": { "parcel_status": "pending" } }`
+| /parcels/code | `{ "parcel_code": "6989" }`
+| /parcels/generator | No payload required
+
+_Note:_ See the methods allowed by these endpoints below
 
 ## API Documentation
 The base URL for all endpoints is: `https://localhost:YOUR_PORT/api`
 
+<details>
+  <summary>Credits</summary>
+  The following API endpoints were designed by Tomoko and Yerold
+</details>
+
 | Endpoint | Method | Auth | Description |
-| -------- | ------ | -----| -------- |
+| -------- | ------ | -----| ----------- |
 | /auth/register | POST | No (auth origins) | Register a new user
 | /auth/login | POST | No (auth origins) | Login using email and password
 | /auth/logout | POST | No (auth origins) | Logout user (remove cookie)
 | /auth/token/refresh | POST | Refresh token | Obtain a new access token
 | /users/userID | GET - PATCH - DELETE | Access token | Retrieve, update and delete a user
 | /users/userID/parcels | GET - POST | Access token | Retrieve and create user's parcels
-| /users/userID/parcels/parcelID | GET- PATCH | Access token | Retrieve and update user's parcel
+| /users/userID/parcels/parcelID | GET | Access token | Retrieve user's parcel
 | /users/userID/nearby-lockers | GET | Access token | Retrieve lockers information near a given user
 | /lockers | GET | No (auth origins)| Retrieve lockers' information
 | /lockers/lockerID | GET | No (auth origins) | Retrieve detailed information about a locker
 | /lockers/lockerID/cabinets | GET - POST | Access token | Retrieve and create cabinets' information
 | /lockers/lockerID/cabinets/cabinetID | GET - PATCH | Access token | Retrieve and update cabinet's information
-
-
-
-```
-API ENDPOINTS designed by Tomoko
-
-USER REGISTER
-/api/users/register
-Method POST
-username, password, email
-
-USER LOGIN
-/api/users/login
-Method POST
-by username and password
-
-USER INFORMATION
-/api/users/{userID}
-Method GET
-Retrieve info by userID
-
-
-PARCELS
-Send a new parcel
-/api/parcels/send
-Method POST
-Users can send a new parcel by sender, recipient, size of parcel and location/destination.
-
-Get parcel info
-/api/parcels/{parcelID}
-Method GET
-Retrieve info by Parcel ID
-
-Update parcel status
-/api/parcels/{parcelID}/update
-Method PUT
-Drivers can update status of parcels. Provide info: delivered.
-
-CABINETS
-Cabinet status
-/api/cabinets/{cabinetID}
-Method GET
-Retrieve status by cabinetID
-
-Reserve cabinet
-/api/cabinets/{cabinetID}/reserve
-Method PUT
-Users can reserve a cabinet
-```
+| /parcels/parcelID | GET - PATCH | Access token | Retrieve, update and delete a user
+| /parcels/code | POST | No (auth origins) | Retrieve parcel's information by pickup or delivery(sending) code
+| /parcels/generator | POST | No (auth origins) | Create random parcels for registered users
