@@ -1,14 +1,21 @@
 import { QueryResult } from 'pg';
 import { Parcel } from '../schemas/parcel.js';
 import { pool } from '../utils/dbConnect.js';
+import {
+	generateRandomParcelSize,
+	generateRandomSpecialInstructions,
+	generateRandomStatus,
+} from '../utils/randomParcelProperties.js';
+import { userModel } from './users.js';
+import { lockerModel} from './lockers.js';
 
 const create = async (
-	parcel: Parcel,
-	senderId: string,
+	parcel: Partial<Parcel>,
+	senderId: string | null,
 	recipientId: string | null,
 ): Promise<Parcel | null> => {
 	const query =
-		'INSERT INTO parcels (sending_code, parcel_weight, special_instructions, parcel_size, sender_id, recipient_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+		'INSERT INTO parcels (sending_code, parcel_weight, special_instructions, parcel_size, sender_id, recipient_id, parcel_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *';
 	const result: QueryResult<Parcel> = await pool.query(query, [
 		parcel.sending_code || null,
 		parcel.parcel_weight,
@@ -16,6 +23,7 @@ const create = async (
 		parcel.parcel_size,
 		senderId,
 		recipientId,
+		parcel.parcel_status || null,
 	]);
 	return result.rows[0] || null;
 };
@@ -131,9 +139,8 @@ const updateParcelNoUserId = async (
 		parcel.ready_for_pickup_at || null,
 		parcelId,
 	]);
-	console.log(result.rows[0]);
 	return result.rows[0] || null;
-}
+};
 
 const deleteParcelById = async (parcelId: string): Promise<Parcel | null> => {
 	const query = 'DELETE FROM parcels WHERE id = $1 RETURNING *';
@@ -158,6 +165,26 @@ const getAllParcels = async (): Promise<Parcel[] | []> => {
 	return result.rows || [];
 };
 
+const generateParcels = async () => {
+	const consumerId = await userModel.getRandomUserId('consumer');
+	const companyId = await userModel.getRandomUserId('company');
+
+	const parcel: Partial<Parcel> = {
+		// sending_code: generateParcelCode(),
+		// pickup_code: generateParcelCode(),
+		parcel_weight: Number((Math.random() * 100).toFixed(2)),
+		special_instructions: generateRandomSpecialInstructions(),
+		parcel_size: generateRandomParcelSize(),
+		parcel_status: generateRandomStatus(),
+	};
+
+	const newParcel = await create(parcel, consumerId, companyId);
+	if (parcel.parcel_status === 'pending') {
+		await lockerModel.updateCabinetById(10, 4, newParcel?.id || null);
+	}
+	return newParcel || null;
+};
+
 export const parcelModel = {
 	getAllParcels,
 	getParcelByCode,
@@ -170,4 +197,5 @@ export const parcelModel = {
 	updateParcelById,
 	updateParcelNoUserId,
 	deleteParcelById,
+	generateParcels,
 };
