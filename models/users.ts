@@ -95,6 +95,13 @@ const deleteById = async (userId: string): Promise<User | null> => {
 	return result.rows[0] || null;
 };
 
+const getRandomUserId = async (role: string): Promise<string | null> => {
+	const query =
+		'SELECT id FROM users WHERE user_role = $1 ORDER BY random() LIMIT 1';
+	const result: QueryResult<User> = await pool.query(query, [role]);
+	return result.rows[0]?.id || null;
+};
+
 export const userModel = {
 	create,
 	getById,
@@ -103,4 +110,5 @@ export const userModel = {
 	updateById,
 	updateRefreshTokenById,
 	deleteById,
+	getRandomUserId,
 };

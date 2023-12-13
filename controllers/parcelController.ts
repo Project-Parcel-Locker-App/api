@@ -179,6 +179,16 @@ const deleteParcel = async (req: Request, res: Response) => {
 	}
 };
 
+const generateRandomParcels = async (_req: Request, res: Response) => {
+	try {
+		const generatedParcel = await parcelModel.generateParcels();
+		return res.status(200).json(generatedParcel);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: 'Error generating parcels' });
+	}
+}
+
 export {
 	createParcel,
 	getParcelInfo,
@@ -186,4 +196,5 @@ export {
 	updateParcel,
 	updateParcelNoUserId,
 	deleteParcel,
+	generateRandomParcels,
 };

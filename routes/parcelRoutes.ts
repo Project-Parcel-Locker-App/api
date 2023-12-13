@@ -4,16 +4,17 @@ import {
 	getParcelByCode,
 	getParcelInfo,
 	updateParcelNoUserId,
+	generateRandomParcels,
 } from '../controllers/parcelController.js';
 
 const parcelRouter = express.Router();
 
-// parcelRouter.get('/', getAllParcels);
 parcelRouter
 	.route('/:id')
 	.get(getParcelInfo)
 	.patch(updateParcelNoUserId)
 	.delete(deleteParcel);
 parcelRouter.post('/codes', getParcelByCode);
+parcelRouter.post('/generator', generateRandomParcels);
 
 export { parcelRouter };
